@@ -24,3 +24,6 @@
 # Maven
 log/
 target/
+
+# Some private data files
+mutations.xml
