@@ -36,7 +36,7 @@ public class PITest {
                 Element mutation = (Element) mutations.item(i);
                 if (!mutation.getAttribute("status").equals("KILLED")) {
                     // TODO: create Mutant object
-                    System.out.println(mutation.getElementsByTagName("sourceFile").item(0).getTextContent());
+                    //System.out.println(mutation.getElementsByTagName("sourceFile").item(0).getTextContent());
                     // TODO: ... parse other attributes
                 }
             }

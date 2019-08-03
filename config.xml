@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <classPath>target/classes/:target/test-classes/</classPath>
+    <compileCommand>mvn compile</compileCommand>
+    <projectDir>.</projectDir>
+    <sourcePath>src/main/java/</sourcePath>
+    <testDir>src/test/java/</testDir>
+    <testRunner>org.junit.runner.JUnitCore</testRunner>
+</configuration>
