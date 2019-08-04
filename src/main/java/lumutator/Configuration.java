@@ -1,6 +1,7 @@
 package lumutator;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -56,6 +57,25 @@ public class Configuration {
             return this.doc.getElementsByTagName(key).item(0).getTextContent();
         } else {
             throw new IllegalArgumentException(String.format("Could not find '%s' in the configuration or its value is not set", key));
+        }
+    }
+
+    /**
+     * Update the value of a parameter or in case the parameter doesn't exist already, create a new one.
+     *
+     * @param key   Name of the parameter.
+     * @param value Value of the parameter.
+     */
+    public void set(String key, String value) {
+        NodeList nodes = this.doc.getElementsByTagName(key);
+        if (nodes.getLength() > 0) {
+            // update value
+            nodes.item(0).setTextContent(value);
+        } else {
+            // add new node with value
+            Node newNode = this.doc.createElement(key);
+            newNode.setTextContent(value);
+            this.doc.getDocumentElement().appendChild(newNode);
         }
     }
 

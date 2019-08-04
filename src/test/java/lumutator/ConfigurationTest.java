@@ -1,5 +1,6 @@
 package lumutator;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,21 +12,25 @@ import static org.junit.Assert.*;
  */
 public class ConfigurationTest {
 
-    /**
-     * Test the hasParameter method.
-     */
-    @Test
-    public void testHasParameter() {
+    private Configuration config;
+
+    @Before
+    public void setUp() {
         ClassLoader classLoader = getClass().getClassLoader();
-        Configuration config = null;
         try {
             config = new Configuration(classLoader.getResource("config.xml").getFile());
         } catch (IOException e) {
             fail();
         }
+    }
 
+    /**
+     * Test the hasParameter method.
+     */
+    @Test
+    public void testHasParameter() {
         assertTrue(config.hasParameter("projectDir"));
-        assertTrue(config.hasParameter("testDir"));
+        assertFalse(config.hasParameter("testDir"));    // node exists, but value is missing
         assertFalse(config.hasParameter("compileCommand"));
     }
 
@@ -34,14 +39,6 @@ public class ConfigurationTest {
      */
     @Test
     public void testGet() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        Configuration config = null;
-        try {
-            config = new Configuration(classLoader.getResource("config.xml").getFile());
-        } catch (IOException e) {
-            fail();
-        }
-
         assertEquals("some_project", config.get("projectDir"));
         boolean exceptionThrown = false;
         try {
@@ -58,6 +55,20 @@ public class ConfigurationTest {
             exceptionThrown = true;
         }
         assertTrue(exceptionThrown);
+    }
+
+    /**
+     * Test the set method.
+     */
+    @Test
+    public void testSet() {
+        assertEquals("some_project", config.get("projectDir"));
+        config.set("projectDir", "some_other_project");
+        assertEquals("some_other_project", config.get("projectDir"));
+
+        assertFalse(config.hasParameter("newParameter"));
+        config.set("newParameter", "420");
+        assertEquals("420", config.get("newParameter"));
     }
 
 }
