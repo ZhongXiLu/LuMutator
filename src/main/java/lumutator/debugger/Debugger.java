@@ -22,8 +22,8 @@ public class Debugger implements Runnable {
     /**
      * Constructor.
      *
-     * @param config        The configuration.
-     * @param classToDebug  The class to debug.
+     * @param config       The configuration.
+     * @param classToDebug The class to debug.
      */
     public Debugger(Configuration config, String classToDebug) {
         this.processBuilder = new ProcessBuilder(

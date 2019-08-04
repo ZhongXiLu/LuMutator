@@ -27,3 +27,5 @@ target/
 
 # Some private data files
 mutations.xml
+notes.txt
+config.xml
