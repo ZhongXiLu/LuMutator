@@ -58,13 +58,11 @@ public class LuMutator {
             // Set working directory
             System.setProperty("user.dir", config.get("projectDir"));
 
-            // Compile project
+            // Compile project (main and tests)
             try {
-                Process process = Runtime.getRuntime().exec(config.get("compileCommand"), null, new File(config.get("projectDir")));
+                Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
                 process.waitFor();
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -87,19 +85,7 @@ public class LuMutator {
                     );
 
                     Debugger debugger = new Debugger(config, classToDebug);
-                    Thread thread = new Thread(debugger);
-                    thread.start();
-
-                    // Wait till the debug process has started
-                    while (!debugger.isRunning()) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    debugger.write("run");
+                    debugger.run();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

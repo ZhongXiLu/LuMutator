@@ -27,18 +27,8 @@ public class DebuggerTest {
         }
     }
 
-    /**
-     * Test the isRunning method.
-     */
     @Test
-    public void testIsRunning() {
-        assertFalse(debugger.isRunning());
-        Thread thread = new Thread(debugger);
-        thread.start();
-        try {
-            Thread.sleep(1000); // 1 second should be enough?
-        } catch (InterruptedException e) {
-        }
-        assertTrue(debugger.isRunning());
+    public void testCommands() {
+        debugger.run();
     }
 }
