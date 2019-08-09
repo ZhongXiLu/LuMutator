@@ -2,6 +2,10 @@ package lumutator;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import lumutator.debugger.Debugger;
 import lumutator.parsers.pitest.PITest;
 import org.apache.commons.cli.*;
@@ -75,7 +79,11 @@ public class LuMutator {
 
             for (File file : files) {
                 try {
-                    System.out.println(file.getCanonicalPath());
+                    File directory = new File("traces");
+                    directory.deleteOnExit();   // TODO: fix this?
+                    if (!directory.exists()) {
+                        directory.mkdir();
+                    }
 
                     CompilationUnit compilationUnit = JavaParser.parse(file);
                     String classToDebug = String.format(
@@ -85,6 +93,19 @@ public class LuMutator {
                     );
 
                     Debugger debugger = new Debugger(config, classToDebug);
+
+                    // Set breakpoint at start of each test (@Test)
+                    for (TypeDeclaration decl : compilationUnit.getTypes()) {
+                        for (BodyDeclaration member : decl.getMembers()) {
+                            for (AnnotationExpr annotation : member.getAnnotations()) {
+                                if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
+                                    MethodDeclaration field = (MethodDeclaration) member;
+                                    debugger.addBreakpoint(field.getName());
+                                }
+                            }
+                        }
+                    }
+
                     debugger.run();
                 } catch (IOException e) {
                     e.printStackTrace();

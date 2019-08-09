@@ -3,33 +3,33 @@ package lumutator.debugger;
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.LaunchingConnector;
-import com.sun.jdi.event.BreakpointEvent;
-import com.sun.jdi.event.ClassPrepareEvent;
-import com.sun.jdi.event.Event;
-import com.sun.jdi.event.EventSet;
+import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
+import com.sun.jdi.request.StepRequest;
 import lumutator.Configuration;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 
 /**
  * Interface for JDI; created to debug a single test class.
- * Based on: http://itsallbinary.com/java-debug-interface-api-jdi-hello-world-example-programmatic-debugging-for-beginners/
+ * Based on: http://itsallbinary.com/java-debug-interface-api-jdi-hello-world-example-programmatic-stepping-through-the-code-lines/
  */
 public class Debugger {
+
+    /**
+     * Tracer to create a tracefile.
+     */
+    private Tracer tracer;
 
     /**
      * Connector that connects LuMutator to the program to debug.
      */
     private LaunchingConnector launchingConnector;
-
-    /**
-     * The virtual machine that is running the program to debug.
-     */
-    private VirtualMachine vm = null;
 
     /**
      * Environment of the VM.
@@ -42,13 +42,20 @@ public class Debugger {
     private String classToDebug;
 
     /**
+     * List of all the methods where there's a breakpoint.
+     */
+    private List<String> breakpoints = new ArrayList<>();
+
+    /**
      * Set up connector and some options.
      *
      * @param config       The configuration.
      * @param classToDebug The class to debug.
      */
-    public Debugger(Configuration config, String classToDebug) {
+    public Debugger(Configuration config, String classToDebug) throws IOException {
+        //System.out.println("=== Debugging " + classToDebug + " ===");
         this.classToDebug = classToDebug;
+        tracer = new Tracer(String.format("traces/%s.txt", classToDebug));   // TODO: add custom filepath
 
         // Prepare connector
         launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -63,58 +70,97 @@ public class Debugger {
     }
 
     /**
+     * Add breakpoint at start of a method.
+     *
+     * @param method The method where the breakpoint is added.
+     */
+    public void addBreakpoint(String method) {
+        breakpoints.add(method);
+    }
+
+    /**
      * Start the VM.
      */
     public void run() {
         try {
-            vm = launchingConnector.launch(env);
+            VirtualMachine vm = launchingConnector.launch(env);
 
             // Create initial prepare event
             ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
             classPrepareRequest.addClassFilter(classToDebug);
             classPrepareRequest.enable();
-            EventSet eventSet = null;
 
+            String currentMethod = "";  // store the current method we're in, so we can determine the amount of steps
+            EventSet eventSet;
             while ((eventSet = vm.eventQueue().remove(100)) != null) {
 
                 for (Event event : eventSet) {
-                    //System.out.println(event);
+                    System.out.println(event);
 
                     if (event instanceof ClassPrepareEvent) {
                         ClassPrepareEvent evt = (ClassPrepareEvent) event;
                         ClassType classType = (ClassType) evt.referenceType();
 
+                        // Set a breakpoint at the start of each method
+                        // TODO: also test extended methods?
                         for (Method method : classType.methods()) {
-                            List<Location> locations =  method.allLineLocations();
-                            if (!locations.isEmpty()) {
-                                BreakpointRequest bpReq = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
-                                bpReq.enable();
+                            if (breakpoints.contains(method.name())) {
+                                List<Location> locations = method.allLineLocations();
+                                if (!locations.isEmpty()) {
+                                    BreakpointRequest breakRequest = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
+                                    breakRequest.enable();
+                                }
                             }
                         }
                     }
 
-                    if (event instanceof BreakpointEvent) {
-                        // disable the breakpoint event
-                        event.request().disable();
-
-                        // get values of all variables that are visible and print
-                        StackFrame stackFrame = ((BreakpointEvent) event).thread().frame(0);
-                        Map<LocalVariable, Value> visibleVariables = (Map<LocalVariable, Value>) stackFrame
-                                .getValues(stackFrame.visibleVariables());
-                        System.out.println("Local Variables =");
-                        for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
-                            System.out.println("	" + entry.getKey().name() + " = " + entry.getValue());
+                    if (event instanceof BreakpointEvent || event instanceof StepEvent) {
+                        ThreadReference thread;
+                        Location location;
+                        if (event instanceof BreakpointEvent) {
+                            thread = ((BreakpointEvent) event).thread();
+                            location = ((BreakpointEvent) event).location();
+                        } else {
+                            thread = ((StepEvent) event).thread();
+                            location = ((StepEvent) event).location();
                         }
 
-                    }
-                    vm.resume();
+                        if (event instanceof BreakpointEvent) {
+                            event.request().disable();
 
+                            // At start of method
+                            currentMethod = location.method().name();
+
+                            // Create new step (over) request
+                            StepRequest stepRequest = event.virtualMachine().eventRequestManager().createStepRequest(
+                                    thread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+                            stepRequest.enable();
+                        }
+
+                        // Check if still in current method
+                        if (!currentMethod.equals(location.method().name())) {
+                            // Out of method => stop step request
+                            event.request().disable();
+                        } else {
+                            // Print locals
+                            tracer.locals(thread.frame(0));
+                        }
+                    }
+
+                    vm.resume();
                 }
             }
+
         } catch (VMDisconnectedException e) {
-            System.out.println("VM is now disconnected.");
+            //System.out.println("VM is now disconnected");
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                tracer.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
 
