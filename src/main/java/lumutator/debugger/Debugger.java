@@ -7,6 +7,7 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
+import com.sun.tools.example.debug.expr.ExpressionParser;
 import lumutator.Configuration;
 
 import java.io.IOException;
@@ -79,6 +80,31 @@ public class Debugger {
     }
 
     /**
+     * Evaluate an expression,
+     *
+     * @param expression The expression to be evaluated.
+     * @param vm         The current running virtual machine.
+     * @param stackFrame The current stack frame.
+     * @return The result of the expression, null if it failed.
+     */
+    private Value evaluate(String expression, VirtualMachine vm, final StackFrame stackFrame) {
+        ExpressionParser.GetFrame frameGetter;
+        frameGetter = new ExpressionParser.GetFrame() {
+            StackFrame frame = stackFrame;
+
+            @Override
+            public StackFrame get() {
+                return frame;
+            }
+        };
+        try {
+            return ExpressionParser.evaluate(expression, vm, frameGetter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Start the VM.
      */
     public void run() {
@@ -115,7 +141,7 @@ public class Debugger {
                     }
 
                     if (event instanceof BreakpointEvent || event instanceof StepEvent) {
-                        ThreadReference thread;
+                        final ThreadReference thread;
                         Location location;
                         if (event instanceof BreakpointEvent) {
                             thread = ((BreakpointEvent) event).thread();
