@@ -7,7 +7,7 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.StepRequest;
-//import com.sun.tools.example.debug.expr.ExpressionParser;
+import com.sun.tools.example.debug.expr.ExpressionParser;
 import lumutator.Configuration;
 
 import java.io.IOException;
@@ -87,20 +87,20 @@ public class Debugger {
      * @param stackFrame The current stack frame.
      * @return The result of the expression, null if it failed.
      */
-//    private Value evaluate(String expression, VirtualMachine vm, final StackFrame stackFrame) {
-//        ExpressionParser.GetFrame frameGetter;
-//        frameGetter = new ExpressionParser.GetFrame() {
-//            @Override
-//            public StackFrame get() {
-//                return stackFrame;
-//            }
-//        };
-//        try {
-//            return ExpressionParser.evaluate(expression, vm, frameGetter);
-//        } catch (Exception e) {
-//            return null;
-//        }
-//    }
+    private Value evaluate(String expression, VirtualMachine vm, final StackFrame stackFrame) {
+        ExpressionParser.GetFrame frameGetter;
+        frameGetter = new ExpressionParser.GetFrame() {
+            @Override
+            public StackFrame get() {
+                return stackFrame;
+            }
+        };
+        try {
+            return ExpressionParser.evaluate(expression, vm, frameGetter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     /**
      * Start the VM.
