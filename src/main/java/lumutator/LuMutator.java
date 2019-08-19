@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import lumutator.debugger.Debugger;
 import lumutator.parsers.pitest.PITest;
+import lumutator.purity.PurityAnalyzer;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -69,6 +70,9 @@ public class LuMutator {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            // Purity Analysis
+            PurityAnalyzer purityAnalyzer = new PurityAnalyzer(config);
 
             // Iterate over test files
             List<File> files = (List<File>) FileUtils.listFiles(

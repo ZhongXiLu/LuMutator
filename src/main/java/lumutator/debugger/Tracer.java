@@ -1,6 +1,5 @@
 package lumutator.debugger;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.Value;

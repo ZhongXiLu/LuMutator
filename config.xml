@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <classFiles>target/classes</classFiles>
     <classPath>target/classes/:target/test-classes/</classPath>
     <javaHome></javaHome>
     <projectDir>.</projectDir>
