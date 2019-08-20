@@ -18,6 +18,7 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class LuMutator {
 
@@ -73,8 +74,10 @@ public class LuMutator {
 
             // Purity Analysis
             PurityAnalyzer purityAnalyzer = new PurityAnalyzer(config);
+            Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
 
             // Iterate over test files
+            // TODO: encapsulate in `Tracer` class?
             List<File> files = (List<File>) FileUtils.listFiles(
                     new File(config.get("testDir")),
                     new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
@@ -82,38 +85,34 @@ public class LuMutator {
             );
 
             for (File file : files) {
-                try {
-                    File directory = new File("traces");
-                    directory.deleteOnExit();   // TODO: fix this?
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
+                File directory = new File("traces");
+                directory.deleteOnExit();   // TODO: fix this?
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
 
-                    CompilationUnit compilationUnit = JavaParser.parse(file);
-                    String classToDebug = String.format(
-                            "%s.%s",
-                            compilationUnit.getPackage().getName(),
-                            FilenameUtils.removeExtension(file.getName())
-                    );
+                CompilationUnit compilationUnit = JavaParser.parse(file);
+                String classToDebug = String.format(
+                        "%s.%s",
+                        compilationUnit.getPackage().getName(),
+                        FilenameUtils.removeExtension(file.getName())
+                );
 
-                    Debugger debugger = new Debugger(config, classToDebug);
+                Debugger debugger = new Debugger(config, classToDebug);
 
-                    // Set breakpoint at start of each test (@Test)
-                    for (TypeDeclaration decl : compilationUnit.getTypes()) {
-                        for (BodyDeclaration member : decl.getMembers()) {
-                            for (AnnotationExpr annotation : member.getAnnotations()) {
-                                if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
-                                    MethodDeclaration field = (MethodDeclaration) member;
-                                    debugger.addBreakpoint(field.getName());
-                                }
+                // Set breakpoint at start of each test (@Test)
+                for (TypeDeclaration decl : compilationUnit.getTypes()) {
+                    for (BodyDeclaration member : decl.getMembers()) {
+                        for (AnnotationExpr annotation : member.getAnnotations()) {
+                            if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
+                                MethodDeclaration field = (MethodDeclaration) member;
+                                debugger.addBreakpoint(field.getName());
                             }
                         }
                     }
-
-                    debugger.run();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
+                debugger.run();
             }
 
         } catch (Exception e) {

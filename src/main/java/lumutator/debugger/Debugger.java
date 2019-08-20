@@ -52,6 +52,7 @@ public class Debugger {
      *
      * @param config       The configuration.
      * @param classToDebug The class to debug.
+     * @throws IOException If it somehow failed creating an output directory.
      */
     public Debugger(Configuration config, String classToDebug) throws IOException {
         //System.out.println("=== Debugging " + classToDebug + " ===");
@@ -80,7 +81,7 @@ public class Debugger {
     }
 
     /**
-     * Evaluate an expression,
+     * Evaluate an expression.
      *
      * @param expression The expression to be evaluated.
      * @param vm         The current running virtual machine.
@@ -122,8 +123,8 @@ public class Debugger {
                     System.out.println(event);
 
                     if (event instanceof ClassPrepareEvent) {
-                        ClassPrepareEvent evt = (ClassPrepareEvent) event;
-                        ClassType classType = (ClassType) evt.referenceType();
+                        final ClassPrepareEvent evt = (ClassPrepareEvent) event;
+                        final ClassType classType = (ClassType) evt.referenceType();
 
                         // Set a breakpoint at the start of each method
                         // TODO: also test extended methods?
@@ -140,7 +141,7 @@ public class Debugger {
 
                     if (event instanceof BreakpointEvent || event instanceof StepEvent) {
                         final ThreadReference thread;
-                        Location location;
+                        final Location location;
                         if (event instanceof BreakpointEvent) {
                             thread = ((BreakpointEvent) event).thread();
                             location = ((BreakpointEvent) event).location();
