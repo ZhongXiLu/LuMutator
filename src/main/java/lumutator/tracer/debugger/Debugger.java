@@ -1,4 +1,4 @@
-package lumutator.debugger;
+package lumutator.tracer.debugger;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
@@ -23,9 +23,9 @@ import java.util.Map;
 public class Debugger {
 
     /**
-     * Tracer to create a tracefile.
+     * Observer to create a tracefile.
      */
-    private Tracer tracer;
+    private Observer observer;
 
     /**
      * Connector that connects LuMutator to the program to debug.
@@ -57,7 +57,7 @@ public class Debugger {
     public Debugger(Configuration config, String classToDebug) throws IOException {
         //System.out.println("=== Debugging " + classToDebug + " ===");
         this.classToDebug = classToDebug;
-        tracer = new Tracer(String.format("traces/%s.txt", classToDebug));   // TODO: add custom filepath
+        observer = new Observer(String.format("traces/%s.txt", classToDebug));   // TODO: add custom filepath
 
         // Prepare connector
         launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -168,7 +168,7 @@ public class Debugger {
                             event.request().disable();
                         } else {
                             // Print locals
-                            tracer.locals(thread.frame(0));
+                            observer.locals(thread.frame(0));
                         }
                     }
 
@@ -182,7 +182,7 @@ public class Debugger {
             e.printStackTrace();
         } finally {
             try {
-                tracer.close();
+                observer.close();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

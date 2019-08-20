@@ -1,17 +1,10 @@
 package lumutator;
 
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.BodyDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import lumutator.debugger.Debugger;
 import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
+import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 
@@ -75,45 +68,16 @@ public class LuMutator {
             // Purity Analysis
             PurityAnalyzer purityAnalyzer = new PurityAnalyzer(config);
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
+            System.out.println(inspectorMethods);
 
-            // Iterate over test files
-            // TODO: encapsulate in `Tracer` class?
-            List<File> files = (List<File>) FileUtils.listFiles(
+            // Trace the tests
+            List<File> testFiles = (List<File>) FileUtils.listFiles(
                     new File(config.get("testDir")),
                     new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
                     DirectoryFileFilter.DIRECTORY
             );
+            Tracer.trace(config, testFiles, inspectorMethods);
 
-            for (File file : files) {
-                File directory = new File("traces");
-                directory.deleteOnExit();   // TODO: fix this?
-                if (!directory.exists()) {
-                    directory.mkdir();
-                }
-
-                CompilationUnit compilationUnit = JavaParser.parse(file);
-                String classToDebug = String.format(
-                        "%s.%s",
-                        compilationUnit.getPackage().getName(),
-                        FilenameUtils.removeExtension(file.getName())
-                );
-
-                Debugger debugger = new Debugger(config, classToDebug);
-
-                // Set breakpoint at start of each test (@Test)
-                for (TypeDeclaration decl : compilationUnit.getTypes()) {
-                    for (BodyDeclaration member : decl.getMembers()) {
-                        for (AnnotationExpr annotation : member.getAnnotations()) {
-                            if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
-                                MethodDeclaration field = (MethodDeclaration) member;
-                                debugger.addBreakpoint(field.getName());
-                            }
-                        }
-                    }
-                }
-
-                debugger.run();
-            }
 
         } catch (Exception e) {
             e.printStackTrace();

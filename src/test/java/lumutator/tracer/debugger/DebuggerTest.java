@@ -1,4 +1,4 @@
-package lumutator.debugger;
+package lumutator.tracer.debugger;
 
 import lumutator.Configuration;
 import org.junit.Before;

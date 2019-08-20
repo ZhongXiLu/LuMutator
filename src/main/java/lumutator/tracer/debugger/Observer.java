@@ -1,4 +1,4 @@
-package lumutator.debugger;
+package lumutator.tracer.debugger;
 
 import com.sun.jdi.LocalVariable;
 import com.sun.jdi.StackFrame;
@@ -11,10 +11,9 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Tracer: create a tracefile by examining a running program; used by Debugger.
- * TODO: rename to `Observer`
+ * Observer: create a tracefile by observing a running program; used by Debugger.
  */
-public class Tracer {
+public class Observer {
 
     /**
      * Write to tracefile.
@@ -27,7 +26,7 @@ public class Tracer {
      * @param outputFile The tracefile.
      * @throws IOException If it somehow failed creating an output directory.
      */
-    public Tracer(String outputFile) throws IOException {
+    public Observer(String outputFile) throws IOException {
         writer = new BufferedWriter(new FileWriter(outputFile));
     }
 
@@ -36,7 +35,7 @@ public class Tracer {
      *
      * @param event The event to be traced.
      */
-    public void trace(Event event) {
+    public void observe(Event event) {
         // https://dzone.com/articles/examining-variables-jdi
 
 
