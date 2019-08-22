@@ -68,7 +68,6 @@ public class LuMutator {
             // Purity Analysis
             PurityAnalyzer purityAnalyzer = new PurityAnalyzer(config);
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
-            System.out.println(inspectorMethods);
 
             // Trace the tests
             List<File> testFiles = (List<File>) FileUtils.listFiles(

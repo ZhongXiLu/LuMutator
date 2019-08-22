@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * Interface for JDI; created to debug a single test class.
- * Based on: http://itsallbinary.com/java-debug-interface-api-jdi-hello-world-example-programmatic-stepping-through-the-code-lines/
+ * Reference: http://itsallbinary.com/java-debug-interface-api-jdi-hello-world-example-programmatic-stepping-through-the-code-lines/
  */
 public class Debugger {
 
@@ -52,12 +52,12 @@ public class Debugger {
      *
      * @param config       The configuration.
      * @param classToDebug The class to debug.
-     * @throws IOException If it somehow failed creating an output directory.
+     * @param observer     Observer to be used at each breakpoint to observe the current state.
      */
-    public Debugger(Configuration config, String classToDebug) throws IOException {
+    public Debugger(Configuration config, String classToDebug, Observer observer) {
         //System.out.println("=== Debugging " + classToDebug + " ===");
         this.classToDebug = classToDebug;
-        observer = new Observer(String.format("traces/%s.txt", classToDebug));   // TODO: add custom filepath
+        this.observer = observer;
 
         // Prepare connector
         launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
@@ -72,15 +72,6 @@ public class Debugger {
     }
 
     /**
-     * Add breakpoint at start of a method.
-     *
-     * @param method The method where the breakpoint is added.
-     */
-    public void addBreakpoint(String method) {
-        breakpoints.add(method);
-    }
-
-    /**
      * Evaluate an expression.
      *
      * @param expression The expression to be evaluated.
@@ -88,7 +79,7 @@ public class Debugger {
      * @param stackFrame The current stack frame.
      * @return The result of the expression, null if it failed.
      */
-    private Value evaluate(String expression, VirtualMachine vm, final StackFrame stackFrame) {
+    public static Value evaluate(String expression, VirtualMachine vm, final StackFrame stackFrame) {
         ExpressionParser.GetFrame frameGetter;
         frameGetter = new ExpressionParser.GetFrame() {
             @Override
@@ -101,6 +92,15 @@ public class Debugger {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Add breakpoint at start of a method.
+     *
+     * @param method The method where the breakpoint is added.
+     */
+    public void addBreakpoint(String method) {
+        breakpoints.add(method);
     }
 
     /**
@@ -120,7 +120,7 @@ public class Debugger {
             while ((eventSet = vm.eventQueue().remove(100)) != null) {
 
                 for (Event event : eventSet) {
-                    System.out.println(event);
+                    //System.out.println(event);
 
                     if (event instanceof ClassPrepareEvent) {
                         final ClassPrepareEvent evt = (ClassPrepareEvent) event;
@@ -167,8 +167,8 @@ public class Debugger {
                             // Out of method => stop step request
                             event.request().disable();
                         } else {
-                            // Print locals
-                            observer.locals(thread.frame(0));
+                            // Observe current state
+                            observer.observe(vm, thread, location);
                         }
                     }
 

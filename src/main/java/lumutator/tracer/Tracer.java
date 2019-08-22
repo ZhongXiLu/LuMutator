@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import lumutator.Configuration;
 import lumutator.tracer.debugger.Debugger;
+import lumutator.tracer.debugger.Observer;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -26,26 +27,27 @@ public abstract class Tracer {
      *
      * @param config           The {@link Configuration}.
      * @param files            All the test files.
-     * @param inspectorMethods Set of all inspector methods in the source classes
+     * @param inspectorMethods Set of all inspector methods in the source classes.
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
     public static void trace(Configuration config, List<File> files, Set<String> inspectorMethods) throws IOException, ParseException {
-        for (File file : files) {
-            File directory = new File("traces");
-            directory.deleteOnExit();   // TODO: fix this?
-            if (!directory.exists()) {
-                directory.mkdir();
-            }
+        File directory = new File("traces");
+        directory.deleteOnExit();   // TODO: fix this?
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
 
+        for (File file : files) {
             CompilationUnit compilationUnit = JavaParser.parse(file);
-            String classToDebug = String.format(
+            final String classToDebug = String.format(
                     "%s.%s",
                     compilationUnit.getPackage().getName(),
                     FilenameUtils.removeExtension(file.getName())
             );
 
-            Debugger debugger = new Debugger(config, classToDebug);
+            Observer observer = new Observer(String.format("traces/%s.txt", classToDebug), inspectorMethods);   // TODO: add custom filepath
+            Debugger debugger = new Debugger(config, classToDebug, observer);
 
             // Set breakpoint at start of each test (@Test)
             for (TypeDeclaration decl : compilationUnit.getTypes()) {
