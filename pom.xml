@@ -84,6 +84,13 @@
             <version>2.2.1</version>
         </dependency>
 
+        <!-- Create .json objects -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20190722</version>
+        </dependency>
+
         <!-- Command line argument parser -->
         <dependency>
             <groupId>commons-cli</groupId>

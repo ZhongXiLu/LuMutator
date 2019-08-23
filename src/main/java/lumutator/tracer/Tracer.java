@@ -11,6 +11,8 @@ import lumutator.Configuration;
 import lumutator.tracer.debugger.Debugger;
 import lumutator.tracer.debugger.Observer;
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,16 +30,18 @@ public abstract class Tracer {
      * @param config           The {@link Configuration}.
      * @param files            All the test files.
      * @param inspectorMethods Set of all inspector methods in the source classes.
+     * @return The traces of the tests.
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
-    public static void trace(Configuration config, List<File> files, Set<String> inspectorMethods) throws IOException, ParseException {
+    public static JSONArray trace(Configuration config, List<File> files, Set<String> inspectorMethods) throws IOException, ParseException {
         File directory = new File("traces");
         directory.deleteOnExit();   // TODO: fix this?
         if (!directory.exists()) {
             directory.mkdir();
         }
 
+        JSONArray traces = new JSONArray();
         for (File file : files) {
             CompilationUnit compilationUnit = JavaParser.parse(file);
             final String classToDebug = String.format(
@@ -46,7 +50,7 @@ public abstract class Tracer {
                     FilenameUtils.removeExtension(file.getName())
             );
 
-            Observer observer = new Observer(String.format("traces/%s.txt", classToDebug), inspectorMethods);   // TODO: add custom filepath
+            Observer observer = new Observer(inspectorMethods);
             Debugger debugger = new Debugger(config, classToDebug, observer);
 
             // Set breakpoint at start of each test (@Test)
@@ -62,7 +66,12 @@ public abstract class Tracer {
             }
 
             debugger.run();
+            //System.out.println(new JSONObject().put(file.getCanonicalPath(), observer.getTrace()));
+            traces.put(new JSONObject().put(file.getCanonicalPath(), observer.getTrace()));
         }
+
+        //System.out.println(traces.toString(4));
+        return traces;
     }
 
 }

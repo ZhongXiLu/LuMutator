@@ -41,6 +41,8 @@ public class LuMutator {
                 return;
             }
 
+            // TODO: add progress(bar)?
+
             // Parse configuration file
             Configuration config;
             try {

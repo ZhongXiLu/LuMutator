@@ -180,12 +180,6 @@ public class Debugger {
             //System.out.println("VM is now disconnected");
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                observer.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
     }
 
