@@ -8,7 +8,7 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 /**
- * Tests for Configuration.
+ * Tests for {@link Configuration}.
  */
 public class ConfigurationTest {
 
@@ -18,14 +18,14 @@ public class ConfigurationTest {
     public void setUp() {
         ClassLoader classLoader = getClass().getClassLoader();
         try {
-            config = new Configuration(classLoader.getResource("config.xml").getFile());
+            config = new Configuration(classLoader.getResource("bad_config.xml").getFile());
         } catch (IOException e) {
             fail();
         }
     }
 
     /**
-     * Test the hasParameter method.
+     * Test the {@link Configuration#hasParameter(String)} method.
      */
     @Test
     public void testHasParameter() {
@@ -35,7 +35,7 @@ public class ConfigurationTest {
     }
 
     /**
-     * Test the get method.
+     * Test the {@link Configuration#get(String)} method.
      */
     @Test
     public void testGet() {
@@ -58,7 +58,7 @@ public class ConfigurationTest {
     }
 
     /**
-     * Test the set method.
+     * Test the {@link Configuration#set(String, String)} method.
      */
     @Test
     public void testSet() {

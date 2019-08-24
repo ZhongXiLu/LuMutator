@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * Tests for PurityAnalyzer; only test the parsing and retrieving the inspector methods from the analysis.
+ * Tests for {@link PurityAnalyzer}; only test the parsing and retrieving the inspector methods from the analysis.
  */
 public class PurityAnalyzerTest {
 
@@ -20,7 +20,7 @@ public class PurityAnalyzerTest {
     final private String line3 = "class{ private package.class methodName3(package.otherClass) } => compile time pure\n";
 
     /**
-     * Test the getMethodName method.
+     * Test the {@link PurityAnalyzer#getMethodName(String)} method.
      */
     @Test
     public void testGetMethodName() {
@@ -37,7 +37,7 @@ public class PurityAnalyzerTest {
     }
 
     /**
-     * Test the getPurityResult method.
+     * Test the {@link PurityAnalyzer#getPurityResult(String)} method.
      */
     @Test
     public void testGetPurityResult() {
@@ -54,7 +54,7 @@ public class PurityAnalyzerTest {
     }
 
     /**
-     * Test the getMethodParameters method.
+     * Test the {@link PurityAnalyzer#getMethodParameters(String)} method.
      */
     @Test
     public void testGetMethodParameters() {
@@ -71,7 +71,7 @@ public class PurityAnalyzerTest {
     }
 
     /**
-     * Test the getReturnType method.
+     * Test the {@link PurityAnalyzer#getReturnType(String)} method.
      */
     @Test
     public void testGetReturnType() {
@@ -88,7 +88,7 @@ public class PurityAnalyzerTest {
     }
 
     /**
-     * Test the getInspectorMethodIfExists method.
+     * Test the {@link PurityAnalyzer#getInspectorMethodIfExists(String)} method.
      */
     @Test
     public void testGetInspectorMethodIfExists() {

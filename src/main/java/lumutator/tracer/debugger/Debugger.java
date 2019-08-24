@@ -10,7 +10,6 @@ import com.sun.jdi.request.StepRequest;
 import com.sun.tools.example.debug.expr.ExpressionParser;
 import lumutator.Configuration;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

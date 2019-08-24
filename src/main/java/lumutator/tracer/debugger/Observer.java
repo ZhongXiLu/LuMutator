@@ -93,6 +93,7 @@ public class Observer {
                 }
             }
 
+            json.toString();    // For some reason this prevents a bug (json becomes null)
             json.put(new JSONObject().put(String.valueOf(location.lineNumber()), traces));
         } catch (Exception e) {
             e.printStackTrace();
