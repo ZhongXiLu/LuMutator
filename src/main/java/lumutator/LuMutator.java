@@ -4,15 +4,16 @@ import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Paths;
 import java.util.Set;
 
+/**
+ * Main class of LuMutator (currently configured to work with PITest)
+ * TODO: create general interface for other mutation tools?
+ */
 public class LuMutator {
 
     public static void main(String args[]) {
@@ -23,8 +24,7 @@ public class LuMutator {
             configOption.setRequired(true);
             options.addOption(configOption);
 
-            Option mutations = new Option("m", "mutations", true, "Mutations file");
-            mutations.setRequired(true);
+            Option mutations = new Option("m", "mutations", true, "Directory with the generated mutants (usually this is /target/pit-reports/export)");
             options.addOption(mutations);
 
             CommandLineParser parser = new DefaultParser();
@@ -54,10 +54,11 @@ public class LuMutator {
             }
 
             // Parse mutations file
-            PITest piTest = new PITest(cmd.getOptionValue("mutations"));
-
-            // Set working directory
-            System.setProperty("user.dir", config.get("projectDir"));
+            PITest piTest = new PITest(
+                    cmd.hasOption("mutations") ?
+                            cmd.getOptionValue("mutations") :
+                            Paths.get(config.get("projectDir"), "target", "pit-reports", "export").toString()
+            );
 
             // Compile project (main and tests)
             try {
@@ -72,13 +73,7 @@ public class LuMutator {
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
 
             // Trace the tests
-            List<File> testFiles = (List<File>) FileUtils.listFiles(
-                    new File(config.get("testDir")),
-                    new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
-                    DirectoryFileFilter.DIRECTORY
-            );
-            Tracer.trace(config, testFiles, inspectorMethods);
-
+            Tracer.trace(config, config.get("testDir"), inspectorMethods);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -26,6 +26,6 @@ log/
 target/
 
 # Some private data files
-mutations.xml
 config.xml
 classes/
+smoke_test.sh

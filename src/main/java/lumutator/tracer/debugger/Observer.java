@@ -93,6 +93,8 @@ public class Observer {
                 }
             }
 
+            // TODO: do other comparisons (e.g. compare local objects to each other)
+
             json.toString();    // For some reason this prevents a bug (json becomes null)
             json.put(new JSONObject().put(String.valueOf(location.lineNumber()), traces));
         } catch (Exception e) {

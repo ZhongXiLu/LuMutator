@@ -1,46 +1,24 @@
 package lumutator.parsers.pitest;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import lumutator.util.Directory;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.util.List;
 
 /**
- * Parser for the generated mutations xml file by PITest.
+ * Parser for the exported mutants by PITest.
  */
 public class PITest {
 
     /**
      * Constructor.
      *
-     * @param filename Filename of the generated mutations file.
+     * @param directory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports/export)
      */
-    public PITest(String filename) {
+    public PITest(String directory) {
 
-        Document doc = null;
-        try {
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            doc = dBuilder.parse(new File(filename));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (doc != null) {
-            doc.getDocumentElement().normalize();
-
-            NodeList mutations = doc.getElementsByTagName("mutation");
-            for (int i = 0; i < mutations.getLength(); i++) {
-                Element mutation = (Element) mutations.item(i);
-                if (!mutation.getAttribute("status").equals("KILLED")) {
-                    // TODO: create Mutant object
-                    //System.out.println(mutation.getElementsByTagName("sourceFile").item(0).getTextContent());
-                    // TODO: ... parse other attributes
-                }
-            }
-        }
+        List<File> mutantDirectories = Directory.getAllDirectories(new File(directory), "mutants");
+        System.out.println(mutantDirectories);
 
     }
 

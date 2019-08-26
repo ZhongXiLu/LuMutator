@@ -10,7 +10,10 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import lumutator.Configuration;
 import lumutator.tracer.debugger.Debugger;
 import lumutator.tracer.debugger.Observer;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,21 +31,21 @@ public abstract class Tracer {
      * Trace a set of tests.
      *
      * @param config           The {@link Configuration}.
-     * @param files            All the test files.
+     * @param directory        Directory that contains the test files that need to be traced.
      * @param inspectorMethods Set of all inspector methods in the source classes.
      * @return The traces of the tests.
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
-    public static JSONArray trace(Configuration config, List<File> files, Set<String> inspectorMethods) throws IOException, ParseException {
-        File directory = new File("traces");
-        directory.deleteOnExit();   // TODO: fix this?
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
+    public static JSONArray trace(Configuration config, String directory, Set<String> inspectorMethods) throws IOException, ParseException {
+        List<File> testFiles = (List<File>) FileUtils.listFiles(
+                new File(directory),
+                new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
+                DirectoryFileFilter.DIRECTORY
+        );
 
         JSONArray traces = new JSONArray();
-        for (File file : files) {
+        for (File file : testFiles) {
             CompilationUnit compilationUnit = JavaParser.parse(file);
             final String classToDebug = String.format(
                     "%s.%s",
