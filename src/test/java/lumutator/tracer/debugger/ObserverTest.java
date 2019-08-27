@@ -36,7 +36,8 @@ public class ObserverTest {
         try {
             // Set up
             Observer observer = new Observer(inspectorMethods);
-            Configuration config = new Configuration(classLoader.getResource("bank_config.xml").getFile());
+            Configuration.getInstance().initialize(classLoader.getResource("bank_config.xml").getFile());
+            Configuration config = Configuration.getInstance();
 
             // Small hack to get junit jar added to classpath
             String[] classpathEntries = System.getProperty("java.class.path").split(File.pathSeparator);
@@ -48,7 +49,7 @@ public class ObserverTest {
 
             Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
             process.waitFor();
-            Debugger debugger = new Debugger(config, "CustomerTest", observer);
+            Debugger debugger = new Debugger("CustomerTest", observer);
 
             // Start the debugger
             debugger.addBreakpoint("testValidCustomers");

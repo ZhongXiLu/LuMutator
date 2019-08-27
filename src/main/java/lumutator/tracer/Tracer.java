@@ -30,14 +30,13 @@ public abstract class Tracer {
     /**
      * Trace a set of tests.
      *
-     * @param config           The {@link Configuration}.
      * @param directory        Directory that contains the test files that need to be traced.
      * @param inspectorMethods Set of all inspector methods in the source classes.
      * @return The traces of the tests.
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
-    public static JSONArray trace(Configuration config, String directory, Set<String> inspectorMethods) throws IOException, ParseException {
+    public static JSONArray trace(String directory, Set<String> inspectorMethods) throws IOException, ParseException {
         List<File> testFiles = (List<File>) FileUtils.listFiles(
                 new File(directory),
                 new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
@@ -54,7 +53,7 @@ public abstract class Tracer {
             );
 
             Observer observer = new Observer(inspectorMethods);
-            Debugger debugger = new Debugger(config, classToDebug, observer);
+            Debugger debugger = new Debugger(classToDebug, observer);
 
             // Set breakpoint at start of each test (@Test)
             for (TypeDeclaration decl : compilationUnit.getTypes()) {

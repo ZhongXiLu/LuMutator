@@ -24,7 +24,7 @@ public class LuMutator {
             configOption.setRequired(true);
             options.addOption(configOption);
 
-            Option mutations = new Option("m", "mutations", true, "Directory with the generated mutants (usually this is /target/pit-reports/export)");
+            Option mutations = new Option("m", "mutants", true, "PITest output directory (usually this is /target/pit-reports)");
             options.addOption(mutations);
 
             CommandLineParser parser = new DefaultParser();
@@ -44,36 +44,32 @@ public class LuMutator {
             // TODO: add progress(bar)?
 
             // Parse configuration file
-            Configuration config;
             try {
-                config = new Configuration(cmd.getOptionValue("config"));
+                Configuration.getInstance().initialize(cmd.getOptionValue("config"));
             } catch (Exception e) {
                 e.getMessage();
                 System.exit(1);
                 return;
             }
+            Configuration config = Configuration.getInstance();
 
             // Parse mutations file
-            PITest piTest = new PITest(
-                    cmd.hasOption("mutations") ?
-                            cmd.getOptionValue("mutations") :
-                            Paths.get(config.get("projectDir"), "target", "pit-reports", "export").toString()
+            PITest.getMutants(
+                cmd.hasOption("mutations") ?
+                    cmd.getOptionValue("mutations") :
+                    Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
             );
 
             // Compile project (main and tests)
-            try {
-                Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
-                process.waitFor();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
+            process.waitFor();
 
             // Purity Analysis
-            PurityAnalyzer purityAnalyzer = new PurityAnalyzer(config);
+            PurityAnalyzer purityAnalyzer = new PurityAnalyzer();
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
 
             // Trace the tests
-            Tracer.trace(config, config.get("testDir"), inspectorMethods);
+            Tracer.trace(config.get("testDir"), inspectorMethods);
 
         } catch (Exception e) {
             e.printStackTrace();

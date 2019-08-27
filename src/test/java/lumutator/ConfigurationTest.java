@@ -12,13 +12,17 @@ import static org.junit.Assert.*;
  */
 public class ConfigurationTest {
 
+    /**
+     * The configuration used in the tests.
+     */
     private Configuration config;
 
     @Before
     public void setUp() {
         ClassLoader classLoader = getClass().getClassLoader();
         try {
-            config = new Configuration(classLoader.getResource("bad_config.xml").getFile());
+            Configuration.getInstance().initialize(classLoader.getResource("bad_config.xml").getFile());
+            config = Configuration.getInstance();
         } catch (IOException e) {
             fail();
         }

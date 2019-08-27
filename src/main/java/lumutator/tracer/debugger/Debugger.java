@@ -49,11 +49,10 @@ public class Debugger {
     /**
      * Set up connector and some options.
      *
-     * @param config       The configuration.
      * @param classToDebug The class to debug.
      * @param observer     Observer to be used at each breakpoint to observe the current state.
      */
-    public Debugger(Configuration config, String classToDebug, Observer observer) {
+    public Debugger(String classToDebug, Observer observer) {
         //System.out.println("=== Debugging " + classToDebug + " ===");
         this.classToDebug = classToDebug;
         this.observer = observer;
@@ -62,6 +61,7 @@ public class Debugger {
         launchingConnector = Bootstrap.virtualMachineManager().defaultConnector();
 
         // Set some options
+        Configuration config = Configuration.getInstance();
         env = launchingConnector.defaultArguments();
         env.get("main").setValue(config.get("testRunner") + " " + classToDebug);
         if (config.hasParameter("javaHome")) {

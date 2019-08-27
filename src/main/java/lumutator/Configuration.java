@@ -10,9 +10,14 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Small class that serves as an interface for the configuration file.
+ * Small (singleton) class that serves as an interface for the configuration file.
  */
-public class Configuration {
+public final class Configuration {
+
+    /**
+     * The one instance of this class.
+     */
+    private static Configuration INSTANCE;
 
     /**
      * The configuration document.
@@ -20,12 +25,24 @@ public class Configuration {
     private Document doc;
 
     /**
+     * Get the one instance of this class.
+     *
+     * @return The one instance.
+     */
+    public static Configuration getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new Configuration();
+        }
+        return INSTANCE;
+    }
+
+    /**
      * Constructor: parse a configuration file.
      *
      * @param filename Filename of the configuration file.
      * @throws IOException When something went wrong with parsing the configuration file.
      */
-    public Configuration(String filename) throws IOException {
+    public void initialize(String filename) throws IOException {
         try {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             this.doc = dBuilder.parse(new File(filename));

@@ -19,21 +19,13 @@ import java.util.regex.Pattern;
 public class PurityAnalyzer {
 
     /**
-     * The project configuration.
-     */
-    private Configuration config;
-
-    /**
      * Run a purity analysis.
-     *
-     * @param config The {@link Configuration}.
      */
-    public PurityAnalyzer(Configuration config) {
-        this.config = config;
+    public PurityAnalyzer() {
         final String[] arguments = new String[]{
-                "-cp", config.get("classFiles"),    // path to directory with .class files
-                "-individual",                      // print result of each method
-                "-eval", "."                        // output directory for the results
+                "-cp", Configuration.getInstance().get("classFiles"),   // path to directory with .class files
+                "-individual",                                          // print result of each method
+                "-eval", "."                                            // output directory for the results
         };
         Purity.main(arguments);
     }
@@ -49,7 +41,7 @@ public class PurityAnalyzer {
 
         String methodName = "";
         Matcher matcher = Pattern.compile(" ([^( ]+)\\(").matcher(line);
-        while(matcher.find()) {
+        if (matcher.find()) {
             methodName = matcher.group(1);
         }
 
@@ -64,7 +56,7 @@ public class PurityAnalyzer {
      */
     static private String getPurityResult(String line) {
         Matcher matcher = Pattern.compile("=> (.+)").matcher(line);
-        while(matcher.find()) {
+        if (matcher.find()) {
             return matcher.group(1);
         }
         return "";
@@ -78,7 +70,7 @@ public class PurityAnalyzer {
      */
     static private String getMethodParameters(String line) {
         Matcher matcher = Pattern.compile("\\((.+)\\)").matcher(line);
-        while(matcher.find()) {
+        if (matcher.find()) {
             return matcher.group(1);
         }
         return "";
@@ -92,7 +84,7 @@ public class PurityAnalyzer {
      */
     static private String getReturnType(String line) {
         Matcher matcher = Pattern.compile("([^ ]+?) ([^ ]+)\\(").matcher(line);
-        while(matcher.find()) {
+        if (matcher.find()) {
             return matcher.group(1);
         }
         return "";
@@ -124,10 +116,10 @@ public class PurityAnalyzer {
     public Set<String> getInspectorMethods() throws IOException {
         Set<String> inspectorMethods = new HashSet<>();
 
-        final String outputDir = new File(config.get("classFiles")).getName();
+        final String outputDir = new File(Configuration.getInstance().get("classFiles")).getName();
         for (String line : Files.readAllLines(Paths.get(outputDir, "method-results.csv"))) {
             String method = getInspectorMethodIfExists(line);
-            if(!method.equals("")) {
+            if (!method.equals("")) {
                 inspectorMethods.add(method);
             }
         }
