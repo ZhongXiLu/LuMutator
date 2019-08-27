@@ -1,0 +1,1 @@
+MutationDetails [id=MutationIdentifier [location=Location [clazz=some.package.Class, method=someMethod, methodDesc=()V], indexes=[5], mutator=org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator], filename=Class.java, block=36, lineNumber=123, description=removed call to some/package/Class::someMethod, testsInOrder=[], isInFinallyBlock=false, poison=NORMAL]

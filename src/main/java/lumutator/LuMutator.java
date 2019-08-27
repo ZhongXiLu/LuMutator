@@ -6,8 +6,8 @@ import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,10 +54,10 @@ public class LuMutator {
             Configuration config = Configuration.getInstance();
 
             // Parse mutations file
-            PITest.getMutants(
-                cmd.hasOption("mutations") ?
-                    cmd.getOptionValue("mutations") :
-                    Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
+            List<Mutant> survivedMutants = PITest.getSurvivedMutants(
+                    cmd.hasOption("mutations") ?
+                            cmd.getOptionValue("mutations") :
+                            Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
             );
 
             // Compile project (main and tests)

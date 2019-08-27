@@ -7,7 +7,6 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import lumutator.Configuration;
 import lumutator.tracer.debugger.Debugger;
 import lumutator.tracer.debugger.Observer;
 import org.apache.commons.io.FileUtils;

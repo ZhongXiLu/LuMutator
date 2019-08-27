@@ -18,8 +18,8 @@ public class CustomerTest {
 
         try {
 
-             customer1 = new Customer("Jan Janssen", "091-0342401-48", 100);
-             customer2 = new Customer("Peter Selie", "091-9871734-31", 777);
+            customer1 = new Customer("Jan Janssen", "091-0342401-48", 100);
+            customer2 = new Customer("Peter Selie", "091-9871734-31", 777);
 
         } catch (IllegalArgumentException e) {
             exceptionThrown = true;

@@ -1,6 +1,7 @@
 package lumutator;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * Simple class that stores information related to a mutant.
@@ -32,8 +33,6 @@ public class Mutant {
      * Extra information about the mutant. (can be anything, it's just to help the user in the end)
      */
     private String notes;
-
-    // TODO: store other properties
 
     /**
      * Create a mutant.
@@ -96,4 +95,31 @@ public class Mutant {
     public String getNotes() {
         return notes;
     }
+
+    /**
+     * Compare this mutant to another one.
+     *
+     * @param o The other mutant.
+     * @return True if the mutant is located on the same location and is of the same mutator type.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Mutant mutant = (Mutant) o;
+        return lineNr == mutant.lineNr &&
+                Objects.equals(originalFile, mutant.originalFile) &&
+                Objects.equals(mutator, mutant.mutator);
+    }
+
+    /**
+     * Create hashcode of this instance.
+     *
+     * @return The hashcode.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(originalFile, lineNr, mutator);
+    }
+
 }

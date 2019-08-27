@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mutations>
+    <mutation detected='false' status='NO_COVERAGE' numberOfTestsRun='0'>
+        <sourceFile>Class.java</sourceFile>
+        <mutatedClass>some.package.Class</mutatedClass>
+        <mutatedMethod>someMethod</mutatedMethod>
+        <methodDescription>()V</methodDescription>
+        <lineNumber>123</lineNumber>
+        <mutator>org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator</mutator>
+        <index>27</index>
+        <block>36</block>
+        <killingTest/>
+        <description>removed call to some/package/Class::someMethod</description>
+    </mutation>
+    <mutation detected='true' status='KILLED' numberOfTestsRun='1'>
+        <sourceFile>Class.java</sourceFile>
+        <mutatedClass>some.package.Class</mutatedClass>
+        <mutatedMethod>someOtherMethod</mutatedMethod>
+        <methodDescription>()V</methodDescription>
+        <lineNumber>420</lineNumber>
+        <mutator>org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator</mutator>
+        <index>27</index>
+        <block>36</block>
+        <killingTest>some.package.ClassTest.test()</killingTest>
+        <description>removed call to some/package/Class::someOtherMethod</description>
+    </mutation>
+    <mutation detected='false' status='NO_COVERAGE' numberOfTestsRun='0'>
+        <sourceFile>OtherClass.java</sourceFile>
+        <mutatedClass>some.package.OtherClass</mutatedClass>
+        <mutatedMethod>someMethod</mutatedMethod>
+        <methodDescription>()V</methodDescription>
+        <lineNumber>666</lineNumber>
+        <mutator>org.pitest.mutationtest.engine.gregor.mutators.ReturnValsMutator</mutator>
+        <index>27</index>
+        <block>36</block>
+        <killingTest/>
+        <description>replaced return of integer sized value with (x == 0 ? 1 : 0)</description>
+    </mutation>
+    <mutation detected='true' status='KILLED' numberOfTestsRun='1'>
+        <sourceFile>OtherClass.java</sourceFile>
+        <mutatedClass>some.package.OtherClass</mutatedClass>
+        <mutatedMethod>someOtherMethod</mutatedMethod>
+        <methodDescription>()V</methodDescription>
+        <lineNumber>69</lineNumber>
+        <mutator>org.pitest.mutationtest.engine.gregor.mutators.VoidMethodCallMutator</mutator>
+        <index>27</index>
+        <block>36</block>
+        <killingTest>some.package.OtherClass.test()</killingTest>
+        <description>removed call to some/package/OtherClass::someOtherMethod</description>
+    </mutation>
+</mutations>

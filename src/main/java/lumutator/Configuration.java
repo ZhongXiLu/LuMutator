@@ -30,7 +30,7 @@ public final class Configuration {
      * @return The one instance.
      */
     public static Configuration getInstance() {
-        if(INSTANCE == null) {
+        if (INSTANCE == null) {
             INSTANCE = new Configuration();
         }
         return INSTANCE;
