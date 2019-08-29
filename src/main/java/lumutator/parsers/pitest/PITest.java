@@ -46,11 +46,18 @@ public abstract class PITest {
         //      (2) Iterate over the generated mutants and see if they're killed or not according to `mutations.xml`
         //      (3) Based on the last two steps, we can store all the necessary information of a mutant
 
+        File exportDir = new File(exportDirectory);
+        if (!exportDir.exists()) {
+            throw new IOException("Cannot find PITest reports; make sure '" + exportDirectory + "' is present");
+        }
+
+        // Use list, so we can preserve order of insertion,
+        // this way, the mutants are grouped together based on class
         List<Mutant> survivedMutants = new ArrayList<>();
 
         // Retrieve all the survived mutants from the results file
         Set<Mutant> survivedMutantsFromResults = null;
-        for (File dir : new File(exportDirectory).listFiles()) {
+        for (File dir : exportDir.listFiles()) {
             if (dir.isDirectory() && !dir.getName().equals("export")) {
                 survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
             }
@@ -65,7 +72,8 @@ public abstract class PITest {
                     String mutantDetails = reader.readLine();
 
                     // Get details from "details.txt"
-                    String originalFile = getOriginalFilePath(getAttribute(mutantDetails, "clazz"));
+                    String mutatedClass = getAttribute(mutantDetails, "clazz");
+                    String originalFile = getOriginalFilePath(mutatedClass);
                     int lineNr = Integer.parseInt(getAttribute(mutantDetails, "lineNumber"));
                     String mutator = getAttribute(mutantDetails, "mutator");
                     Matcher matcher = Pattern.compile("mutators\\.([^.]+)\\b").matcher(mutator);
@@ -81,6 +89,7 @@ public abstract class PITest {
                     Mutant m = new Mutant(
                             new File(originalFile),
                             classFile,
+                            mutatedClass,
                             lineNr,
                             mutator,
                             notes
@@ -144,6 +153,7 @@ public abstract class PITest {
                     survivedMutants.add(new Mutant(
                             new File(originalFile),
                             new File(""),   // not necessary now
+                            mutatedClass,
                             lineNr,
                             mutator,
                             notes
@@ -178,17 +188,7 @@ public abstract class PITest {
      */
     static private String getOriginalFilePath(String file) {
         String sourcePath = Configuration.getInstance().get("sourcePath");
-        String orginalFile = file;
-
-        if (orginalFile.contains("$")) {
-            // Strip $ and following characters
-            Matcher matcher = Pattern.compile("([^$]+)\\$").matcher(orginalFile);
-            if (matcher.find()) {
-                orginalFile = matcher.group(1);
-            }
-        }
-        orginalFile = orginalFile.replace('.', '/');
-        return String.format("%s/%s.java", sourcePath, orginalFile);
+        return String.format("%s/%s.java", sourcePath, Directory.packagePathToFilePath(file));
     }
 
 }

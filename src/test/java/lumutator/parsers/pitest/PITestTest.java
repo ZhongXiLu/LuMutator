@@ -17,6 +17,10 @@ import static org.junit.Assert.*;
  */
 public class PITestTest {
 
+    /**
+     * The survived mutants.
+     */
+    private Mutant m, m2;
 
     /**
      * Set up the default config.
@@ -30,10 +34,27 @@ public class PITestTest {
             e.printStackTrace();
             fail();
         }
+
+        m = new Mutant(
+                new File("src/main/java/some/package/Class.java"),
+                new File(""),
+                "some.package.Class",
+                123,
+                "VoidMethodCallMutator",
+                "removed call to some/package/Class::someMethod"
+        );
+        m2 = new Mutant(
+                new File("src/main/java/some/package/OtherClass.java"),
+                new File(""),
+                "some.package.OtherClass",
+                666,
+                "ReturnValsMutator",
+                "replaced return of integer sized value with (x == 0 ? 1 : 0)"
+        );
     }
 
     /**
-     * Test the {@link PITest#getSurvivedMutantsFromFile(File)} method.
+     * Test the getSurvivedMutantsFromFile method.
      */
     @Test
     public void testGetSurvivedMutantsFromFile() {
@@ -45,21 +66,6 @@ public class PITestTest {
             Set<Mutant> survivedMutants = (Set<Mutant>) method.invoke(null, new File(classLoader.getResource("pit-reports/201908271440/mutations.xml").getFile()));
 
             assertEquals(2, survivedMutants.size());
-
-            Mutant m = new Mutant(
-                    new File("src/main/java/some/package/Class.java"),
-                    new File(""),
-                    123,
-                    "VoidMethodCallMutator",
-                    "removed call to some/package/Class::someMethod"
-            );
-            Mutant m2 = new Mutant(
-                    new File("src/main/java/some/package/OtherClass.java"),
-                    new File(""),
-                    666,
-                    "ReturnValsMutator",
-                    "replaced return of integer sized value with (x == 0 ? 1 : 0)"
-            );
 
             assertTrue(survivedMutants.contains(m));
             assertTrue(survivedMutants.contains(m2));
@@ -83,21 +89,6 @@ public class PITestTest {
             List<Mutant> survivedMutants = (List<Mutant>) method.invoke(null, classLoader.getResource("pit-reports").getPath());
 
             assertEquals(2, survivedMutants.size());
-
-            Mutant m = new Mutant(
-                    new File("src/main/java/some/package/Class.java"),
-                    new File(""),
-                    123,
-                    "VoidMethodCallMutator",
-                    "removed call to some/package/Class::someMethod"
-            );
-            Mutant m2 = new Mutant(
-                    new File("src/main/java/some/package/OtherClass.java"),
-                    new File(""),
-                    666,
-                    "ReturnValsMutator",
-                    "replaced return of integer sized value with (x == 0 ? 1 : 0)"
-            );
 
             assertTrue(survivedMutants.contains(m));
             assertTrue(survivedMutants.contains(m2));

@@ -47,6 +47,11 @@ public class Debugger {
     private List<String> breakpoints = new ArrayList<>();
 
     /**
+     * The virtual machine.
+     */
+    private VirtualMachine vm;
+
+    /**
      * Set up connector and some options.
      *
      * @param classToDebug The class to debug.
@@ -103,11 +108,24 @@ public class Debugger {
     }
 
     /**
+     * Close the current running VM.
+     */
+    public void close() {
+        if (vm != null) {
+            try {
+                vm.exit(0);
+            } catch (VMDisconnectedException e) {
+                // Already disconnected
+            }
+        }
+    }
+
+    /**
      * Start the VM.
      */
     public void run() {
         try {
-            VirtualMachine vm = launchingConnector.launch(env);
+            vm = launchingConnector.launch(env);
 
             // Create initial prepare event
             ClassPrepareRequest classPrepareRequest = vm.eventRequestManager().createClassPrepareRequest();
@@ -176,7 +194,7 @@ public class Debugger {
             }
 
         } catch (VMDisconnectedException e) {
-            //System.out.println("VM is now disconnected");
+            // VM is disconnected
         } catch (Exception e) {
             e.printStackTrace();
         }

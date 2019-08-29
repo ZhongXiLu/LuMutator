@@ -67,11 +67,10 @@ public abstract class Tracer {
             }
 
             debugger.run();
-            //System.out.println(new JSONObject().put(file.getCanonicalPath(), observer.getTrace()));
+            debugger.close();
             traces.put(new JSONObject().put(file.getCanonicalPath(), observer.getTrace()));
         }
 
-        //System.out.println(traces.toString(4));
         return traces;
     }
 

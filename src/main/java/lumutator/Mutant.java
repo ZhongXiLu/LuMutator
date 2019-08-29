@@ -19,6 +19,11 @@ public class Mutant {
     private File classFile;
 
     /**
+     * The mutated class, including its package. (e.g. some.package.Class)
+     */
+    private String mutatedClass;
+
+    /**
      * The line number where the mutant resides.
      */
     private int lineNr;
@@ -39,13 +44,15 @@ public class Mutant {
      *
      * @param originalFile The original, unmodified file where the mutant was inserted.
      * @param classFile    The compiled class file that contains the mutant.
+     * @param mutatedClass The mutated class, including its package.
      * @param lineNr       The line number where the mutant resides.
      * @param mutator      The type of mutator.
-     * @param notes        Extra information about the mutant.
+     * @param notes        Extra information about the mutant. (can be anything, it's just to help the user in the end)
      */
-    public Mutant(File originalFile, File classFile, int lineNr, String mutator, String notes) {
+    public Mutant(File originalFile, File classFile, String mutatedClass, int lineNr, String mutator, String notes) {
         this.originalFile = originalFile;
         this.classFile = classFile;
+        this.mutatedClass = mutatedClass;
         this.lineNr = lineNr;
         this.mutator = mutator;
         this.notes = notes;
@@ -67,6 +74,15 @@ public class Mutant {
      */
     public File getClassFile() {
         return classFile;
+    }
+
+    /**
+     * Get the mutated class, including its package.
+     *
+     * @return The mutated class, including its package.
+     */
+    public String getMutatedClass() {
+        return mutatedClass;
     }
 
     /**

@@ -4,9 +4,14 @@ import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
+import org.json.JSONArray;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.lang.management.MemoryUsage;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
 
@@ -46,19 +51,13 @@ public class LuMutator {
             // Parse configuration file
             try {
                 Configuration.getInstance().initialize(cmd.getOptionValue("config"));
+                // TODO: check if all required parameters are present
             } catch (Exception e) {
                 e.getMessage();
                 System.exit(1);
                 return;
             }
             Configuration config = Configuration.getInstance();
-
-            // Parse mutations file
-            List<Mutant> survivedMutants = PITest.getSurvivedMutants(
-                    cmd.hasOption("mutations") ?
-                            cmd.getOptionValue("mutations") :
-                            Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
-            );
 
             // Compile project (main and tests)
             Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
@@ -68,8 +67,45 @@ public class LuMutator {
             PurityAnalyzer purityAnalyzer = new PurityAnalyzer();
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
 
-            // Trace the tests
-            Tracer.trace(config.get("testDir"), inspectorMethods);
+            // Trace the tests with original version
+            JSONArray originalTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
+
+            // Parse mutations file
+            List<Mutant> survivedMutants = PITest.getSurvivedMutants(
+                    cmd.hasOption("mutations") ?
+                            cmd.getOptionValue("mutations") :
+                            Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
+            );
+
+            // TODO: encapsulate code below
+            String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
+            for (Mutant mutant : survivedMutants) {
+                final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
+                final String newClassFile = mutant.getClassFile().getCanonicalPath();
+                final String oldClassFile = classFilesDir + ".class";
+                final String oldClassTempFile = classFilesDir + ".tmp";
+
+                // Create copy of original .class file if necessary
+                if (currentTempFile.isEmpty()) {
+                    // Start
+                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                    currentTempFile = oldClassTempFile;
+                } else if (!currentTempFile.equals(oldClassTempFile)) {
+                    // New class
+                    Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                    currentTempFile = oldClassTempFile;
+                } // else: Mutants still in same class, no need to make copy of original
+
+                // Copy the mutant .class file
+                Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
+
+                JSONArray mutantTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
+
+                // TODO: compare traces
+            }
+            // Restore copy of class of last mutant
+            Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
 
         } catch (Exception e) {
             e.printStackTrace();
