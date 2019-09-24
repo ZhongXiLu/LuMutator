@@ -4,11 +4,9 @@ import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.lang.management.MemoryUsage;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -21,7 +19,7 @@ import java.util.Set;
  */
 public class LuMutator {
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         try {
             Options options = new Options();
 
@@ -68,7 +66,7 @@ public class LuMutator {
             Set<String> inspectorMethods = purityAnalyzer.getInspectorMethods();
 
             // Trace the tests with original version
-            JSONArray originalTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
+            JSONObject originalTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
 
             // Parse mutations file
             List<Mutant> survivedMutants = PITest.getSurvivedMutants(
@@ -100,7 +98,7 @@ public class LuMutator {
                 // Copy the mutant .class file
                 Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
 
-                JSONArray mutantTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
+                JSONObject mutantTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
 
                 // TODO: compare traces
             }

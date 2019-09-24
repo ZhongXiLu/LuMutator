@@ -1,7 +1,6 @@
 package lumutator.tracer.debugger;
 
 import com.sun.jdi.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -10,14 +9,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Observer: josn trace object by observing a running program; used by Debugger.
+ * Observer: observe a running program and create a trace; used by {@link Debugger}.
  */
 public class Observer {
 
     /**
-     * Json array that stores the trace.
+     * Json object that stores the trace.
      */
-    private JSONArray json;
+    private JSONObject json;
 
     /**
      * Set of all inspector methods in the source classes.
@@ -30,16 +29,16 @@ public class Observer {
      * @param inspectorMethods Set of all inspector methods in the source classes.
      */
     public Observer(Set<String> inspectorMethods) {
-        json = new JSONArray();
+        json = new JSONObject();
         this.inspectorMethods = inspectorMethods;
     }
 
     /**
      * Get the trace.
      *
-     * @return The trace in form of a JSON array.
+     * @return The trace in form of a JSON object.
      */
-    public JSONArray getTrace() {
+    public JSONObject getTrace() {
         return json;
     }
 
@@ -59,7 +58,7 @@ public class Observer {
             Map<LocalVariable, Value> visibleVariables = thread.frame(0).getValues(thread.frame(0).visibleVariables());
 
             // Check each local variable
-            JSONArray traces = new JSONArray();
+            JSONObject trace = new JSONObject();
             for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
 
                 // Check if it's a non-primitive datatype
@@ -72,18 +71,13 @@ public class Observer {
                         if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
                             // Execute inspector method
                             Value value = Debugger.evaluate(String.format("%s.%s()", entry.getKey().name(), method.name()), vm, thread.frame(0));
-                            JSONObject trace = new JSONObject().put(
-                                    String.format("%s.%s()", entry.getKey().name(), method.name()),
-                                    value == null ? JSONObject.NULL : value
-                            );
-                            traces.put(trace);
+                            addTrace(trace, String.format("%s.%s()", entry.getKey().name(), method.name()), value);
                         }
                     }
 
                 } catch (java.lang.ClassCastException e) {
                     // Primitive datatype => just get the value
-                    JSONObject trace = new JSONObject().put(entry.getKey().name(), entry.getValue());
-                    traces.put(trace);
+                    addTrace(trace, entry.getKey().name(), entry.getValue());
 
                 } catch (ClassNotLoadedException e) {
                     // TODO: fix this?
@@ -96,9 +90,52 @@ public class Observer {
             // TODO: do other comparisons (e.g. compare local objects to each other)
 
             json.toString();    // For some reason this prevents a bug (json becomes null)
-            json.put(new JSONObject().put(String.valueOf(location.lineNumber()), traces));
+            // TODO: dont add empty traces
+            json.put(String.valueOf(location.lineNumber()), trace);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add new entry in the current trace.
+     *
+     * @param trace The current trace.
+     * @param key   The key, i.e. variable name, expression, ...
+     * @param value The value of the key.
+     */
+    private void addTrace(JSONObject trace, String key, Value value) {
+        if (value instanceof PrimitiveValue) {
+            if (value instanceof BooleanValue) {
+                trace.put(key, ((BooleanValue) value).value());
+            } else if (value instanceof ByteValue) {
+                trace.put(key, ((ByteValue) value).value());
+            } else if (value instanceof CharValue) {
+                trace.put(key, ((CharValue) value).value());
+            } else if (value instanceof DoubleValue) {
+                trace.put(key, ((DoubleValue) value).value());
+            } else if (value instanceof FloatValue) {
+                trace.put(key, ((FloatValue) value).value());
+            } else if (value instanceof IntegerValue) {
+                trace.put(key, ((IntegerValue) value).value());
+            } else if (value instanceof LongValue) {
+                trace.put(key, ((LongValue) value).value());
+            } else if (value instanceof ShortValue) {
+                trace.put(key, ((ShortValue) value).value());
+            } else {
+                // void
+                trace.put(key, JSONObject.NULL);
+            }
+
+        } else if (value instanceof ObjectReference) {
+            if (value instanceof StringReference) {
+                trace.put(key, ((StringReference) value).value());
+            }
+            // TODO: else: ArrayReference or ObjectReference
+
+        } else {
+            // null
+            trace.put(key, JSONObject.NULL);
         }
     }
 

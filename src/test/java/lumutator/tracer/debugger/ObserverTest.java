@@ -1,16 +1,16 @@
 package lumutator.tracer.debugger;
 
 import lumutator.Configuration;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for both the {@link Debugger} and {@link Observer}.
@@ -56,25 +56,11 @@ public class ObserverTest {
             debugger.run();
 
             // Check the traces
-            JSONArray trace = observer.getTrace();
-            assertEquals(5, trace.length());
-            assertEquals("{\"17\":[]}", trace.get(0).toString());
-            assertEquals("{\"21\":[{\"exceptionThrown\":\"false\"}]}", trace.get(1).toString());
-
-            // Manual check one of the others, since order is NOT preserved, so we cannot compare strings
-            final List<String> expectedTraces = Arrays.asList(
-                    "{customer1.getName()=\"Jan Janssen\"}",
-                    "{customer1.getAccountNumber()=\"091-0342401-48\"}",
-                    "{customer1.getBalance()=100}",
-                    "{customer2.getName()=\"Peter Selie\"}",
-                    "{customer2.getAccountNumber()=\"091-9871734-31\"}",
-                    "{customer2.getBalance()=777}",
-                    "{exceptionThrown=false}"
+            JSONObject trace = observer.getTrace();
+            JSONObject expectedTrace = new JSONObject(
+                    "{22:{exceptionThrown:false,customer1.getName():\"Jan Janssen\",customer1.getBalance():100,customer1.getAccountNumber():\"091-0342401-48\"},26:{customer2.getName():\"Peter Selie\",exceptionThrown:false,customer1.getName():\"Jan Janssen\",customer1.getBalance():100,customer1.getAccountNumber():\"091-0342401-48\",customer2.getAccountNumber():\"091-9871734-31\",customer2.getBalance():777},17:{},28:{exceptionThrown:false},21:{exceptionThrown:false}}"
             );
-            JSONArray traceOnLine22 = trace.getJSONObject(3).getJSONArray("26");
-            for (Object obj : traceOnLine22.toList()) {
-                assertTrue(expectedTraces.contains(obj.toString()));
-            }
+            JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), false);
 
             // Clean up
             Process process2 = Runtime.getRuntime().exec("mvn clean", null, new File(config.get("projectDir")));

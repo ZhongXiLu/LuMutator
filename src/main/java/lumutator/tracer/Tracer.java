@@ -13,7 +13,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -35,14 +34,14 @@ public abstract class Tracer {
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
-    public static JSONArray trace(String directory, Set<String> inspectorMethods) throws IOException, ParseException {
+    public static JSONObject trace(String directory, Set<String> inspectorMethods) throws IOException, ParseException {
         List<File> testFiles = (List<File>) FileUtils.listFiles(
                 new File(directory),
                 new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
                 DirectoryFileFilter.DIRECTORY
         );
 
-        JSONArray traces = new JSONArray();
+        JSONObject traces = new JSONObject();
         for (File file : testFiles) {
             CompilationUnit compilationUnit = JavaParser.parse(file);
             final String classToDebug = String.format(
@@ -68,7 +67,7 @@ public abstract class Tracer {
 
             debugger.run();
             debugger.close();
-            traces.put(new JSONObject().put(file.getCanonicalPath(), observer.getTrace()));
+            traces.put(file.getCanonicalPath(), observer.getTrace());
         }
 
         return traces;
