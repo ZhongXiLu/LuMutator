@@ -1,6 +1,6 @@
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Tests for the {@link Customer}.
@@ -25,7 +25,7 @@ public class CustomerTest {
             exceptionThrown = true;
         }
 
-        assertTrue(exceptionThrown);
+        assertFalse(exceptionThrown);
     }
 
     // No tests for other methods! :(

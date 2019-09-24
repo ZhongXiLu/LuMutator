@@ -63,15 +63,20 @@ public class Observer {
 
                 // Check if it's a non-primitive datatype
                 try {
-                    // TODO: recursive: call again if return value is non-primitive datatype?
-                    // Non-primitive datatype => use inspector methods to inspect state
-                    ClassType classType = (ClassType) entry.getKey().type();
-                    for (Method method : classType.methods()) {
-                        Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
-                        if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
-                            // Execute inspector method
-                            Value value = Debugger.evaluate(String.format("%s.%s()", entry.getKey().name(), method.name()), vm, thread.frame(0));
-                            addTrace(trace, String.format("%s.%s()", entry.getKey().name(), method.name()), value);
+                    if (entry.getValue() instanceof StringReference || entry.getValue() == null) {
+                        // String and null are considered a "complex" type, enforce primitive type
+                        throw new ClassCastException();
+                    } else {
+                        // TODO: recursive: call again if return value is non-primitive datatype?
+                        // Non-primitive datatype => use inspector methods to inspect state
+                        ClassType classType = (ClassType) entry.getKey().type();
+                        for (Method method : classType.methods()) {
+                            Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
+                            if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
+                                // Execute inspector method
+                                Value value = Debugger.evaluate(String.format("%s.%s()", entry.getKey().name(), method.name()), vm, thread.frame(0));
+                                addTrace(trace, String.format("%s.%s()", entry.getKey().name(), method.name()), value);
+                            }
                         }
                     }
 
