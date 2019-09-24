@@ -5,11 +5,16 @@ import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
 import org.json.JSONObject;
+import org.skyscreamer.jsonassert.FieldComparisonFailure;
+import org.skyscreamer.jsonassert.JSONCompare;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -75,6 +80,8 @@ public class LuMutator {
                             Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
             );
 
+            // List of all the failed trace comparisons between the original and mutant trace
+            List<JSONCompareResult> failedComparisons = new ArrayList<>();
             // TODO: encapsulate code below
             String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
             for (Mutant mutant : survivedMutants) {
@@ -100,10 +107,17 @@ public class LuMutator {
 
                 JSONObject mutantTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
 
-                // TODO: compare traces
+                // Compare traces
+                // LENIENT is fastest and we dont need strictness or extensibility checks
+                JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
+                if (comparison.isFailureOnField()) {
+                    failedComparisons.add(comparison);
+                }
             }
             // Restore copy of class of last mutant
             Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+
+            // TODO: generate assertions based on `failedComparisons`
 
         } catch (Exception e) {
             e.printStackTrace();
