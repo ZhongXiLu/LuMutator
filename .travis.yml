@@ -1,0 +1,10 @@
+dist: xenial
+language: java
+
+notifications:
+  email: false
+
+jdk:
+  - openjdk10
+  - openjdk11
+
