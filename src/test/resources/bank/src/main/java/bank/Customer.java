@@ -1,3 +1,5 @@
+package bank;
+
 /**
  * Represents a customer in the bank application.
  */

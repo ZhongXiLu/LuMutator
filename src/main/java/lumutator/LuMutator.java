@@ -1,20 +1,15 @@
 package lumutator;
 
+import lumutator.generator.AssertionGenerator;
 import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
 import org.json.JSONObject;
-import org.skyscreamer.jsonassert.FieldComparisonFailure;
-import org.skyscreamer.jsonassert.JSONCompare;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -80,44 +75,12 @@ public class LuMutator {
                             Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
             );
 
-            // List of all the failed trace comparisons between the original and mutant trace
-            List<JSONCompareResult> failedComparisons = new ArrayList<>();
-            // TODO: encapsulate code below
-            String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
-            for (Mutant mutant : survivedMutants) {
-                final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
-                final String newClassFile = mutant.getClassFile().getCanonicalPath();
-                final String oldClassFile = classFilesDir + ".class";
-                final String oldClassTempFile = classFilesDir + ".tmp";
+            // Longest step: trace every mutant and compare consequently
+            List<JSONCompareResult> failedComparisons =
+                    Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
-                // Create copy of original .class file if necessary
-                if (currentTempFile.isEmpty()) {
-                    // Start
-                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
-                    currentTempFile = oldClassTempFile;
-                } else if (!currentTempFile.equals(oldClassTempFile)) {
-                    // New class
-                    Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
-                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
-                    currentTempFile = oldClassTempFile;
-                } // else: Mutants still in same class, no need to make copy of original
-
-                // Copy the mutant .class file
-                Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
-
-                JSONObject mutantTrace = Tracer.trace(config.get("testDir"), inspectorMethods);
-
-                // Compare traces
-                // LENIENT is fastest and we dont need strictness or extensibility checks
-                JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
-                if (comparison.isFailureOnField()) {
-                    failedComparisons.add(comparison);
-                }
-            }
-            // Restore copy of class of last mutant
-            Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
-
-            // TODO: generate assertions based on `failedComparisons`
+            // Generate the assertions based on the failed trace comparisons
+            AssertionGenerator.generateAssertions(failedComparisons, true);
 
         } catch (Exception e) {
             e.printStackTrace();

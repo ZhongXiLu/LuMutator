@@ -7,6 +7,8 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import lumutator.Configuration;
+import lumutator.Mutant;
 import lumutator.tracer.debugger.Debugger;
 import lumutator.tracer.debugger.Observer;
 import org.apache.commons.io.FileUtils;
@@ -14,9 +16,16 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.json.JSONObject;
+import org.skyscreamer.jsonassert.JSONCompare;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -71,6 +80,59 @@ public abstract class Tracer {
         }
 
         return traces;
+    }
+
+    /**
+     * Trace all the mutants tests and also compare them afterwards with the original trace.
+     *
+     * @param survivedMutants  List of all the survived mutants that need to be traced.
+     * @param originalTrace    The trace from the original version of the code.
+     * @param inspectorMethods Set of all inspector methods in the source classes.
+     * @return List of all the failed trace comparisons between the original and mutant trace
+     * @throws IOException    If it failed parsing the test files.
+     * @throws ParseException If it failed parsing the test files.
+     */
+    public static List<JSONCompareResult> traceAndCompareMutants(
+            List<Mutant> survivedMutants, JSONObject originalTrace, Set<String> inspectorMethods) throws IOException, ParseException {
+
+        List<JSONCompareResult> failedComparisons = new ArrayList<>();
+        Configuration config = Configuration.getInstance();
+
+        String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
+        for (Mutant mutant : survivedMutants) {
+            final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
+            final String newClassFile = mutant.getClassFile().getCanonicalPath();
+            final String oldClassFile = classFilesDir + ".class";
+            final String oldClassTempFile = classFilesDir + ".tmp";
+
+            // Create copy of original .class file if necessary
+            if (currentTempFile.isEmpty()) {
+                // Start
+                Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                currentTempFile = oldClassTempFile;
+            } else if (!currentTempFile.equals(oldClassTempFile)) {
+                // New class
+                Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+                Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                currentTempFile = oldClassTempFile;
+            } // else: Mutants still in same class, no need to make copy of original
+
+            // Copy the mutant .class file
+            Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
+
+            JSONObject mutantTrace = trace(config.get("testDir"), inspectorMethods);
+
+            // Compare traces
+            // LENIENT is fastest and we dont need strictness or extensibility checks
+            JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
+            if (comparison.isFailureOnField()) {
+                failedComparisons.add(comparison);
+            }
+        }
+        // Restore copy of class of last mutant
+        Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+
+        return failedComparisons;
     }
 
 }
