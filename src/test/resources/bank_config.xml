@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <classFiles>target/classes</classFiles>
+    <classFiles>target/test-classes/bank/target/classes</classFiles>
     <classPath>target/test-classes/bank/target/classes/:target/test-classes/bank/target/test-classes/</classPath>
     <javaHome></javaHome>
     <projectDir>target/test-classes/bank/</projectDir>
     <sourcePath>src/main/java/</sourcePath>
     <testCommand>mvn test</testCommand>
-    <testDir>src/test/java</testDir>
+    <testDir>target/test-classes/bank/src/test/java</testDir>
     <testRunner>org.junit.runner.JUnitCore</testRunner>
 </configuration>

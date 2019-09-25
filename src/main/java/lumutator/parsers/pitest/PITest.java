@@ -30,7 +30,7 @@ public abstract class PITest {
     /**
      * Get all the survived mutants from the exported mutants of PITest.
      *
-     * @param exportDirectory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports/export)
+     * @param exportDirectory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports)
      * @return List of all the survived mutants.
      */
     static public List<Mutant> getSurvivedMutants(String exportDirectory) throws IOException {
