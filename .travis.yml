@@ -8,3 +8,7 @@ jdk:
   - openjdk10
   - openjdk11
 
+script:
+  - mvn test -B
+  - mvn package -DskipTests=true
+  - ./smoketest/smoke_test.sh

@@ -28,4 +28,3 @@ target/
 # Some private data files
 config.xml
 classes/
-smoke_test.sh
