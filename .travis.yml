@@ -18,4 +18,4 @@ services:
 script:
   - mvn test -B
   - mvn clean package -DskipTests=true
-  - ./smoketest/smoke_test.sh
+  - travis_wait 60 ./smoketest/smoke_test.sh
