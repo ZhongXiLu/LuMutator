@@ -10,5 +10,5 @@ jdk:
 
 script:
   - mvn test -B
-  - mvn package -DskipTests=true
+  - mvn clean package -DskipTests=true
   - ./smoketest/smoke_test.sh
