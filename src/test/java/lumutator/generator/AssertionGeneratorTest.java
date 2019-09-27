@@ -10,11 +10,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Tests for {@link AssertionGenerator}.
@@ -51,9 +54,26 @@ public class AssertionGeneratorTest extends TestEnvironment {
     @Test
     public void testGenerateAssertions() {
         try {
+            // Save copy of original file since we are modifying it
+            ClassLoader classLoader = TracerTest.class.getClassLoader();
+            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
+            Files.copy(originalFile, Paths.get(originalFile.toString() + ".tmp"), StandardCopyOption.REPLACE_EXISTING);
+
             AssertionGenerator.generateAssertions(failedComparisons);
 
             // TODO: check for changes in original test files
+            final List<String> expectedAssertions = Arrays.asList(
+                    "assertEquals(\"091-0342401-48\", customer1.getAccountNumber());",
+                    "assertEquals(100, customer1.getBalance());",
+                    "assertEquals(\"Jan Janssen\", customer1.getName());"
+            );
+            List<String> lines = Files.readAllLines(originalFile);
+            assertTrue(expectedAssertions.contains(lines.get(24).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(25).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(26).trim()));
+
+            // Restore original file
+            Files.move(Paths.get(originalFile.toString() + ".tmp"), originalFile, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (Exception e) {
             e.printStackTrace();

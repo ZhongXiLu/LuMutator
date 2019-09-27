@@ -79,6 +79,9 @@ public class LuMutator {
             List<JSONCompareResult> failedComparisons =
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
+            // TODO: remove this line
+            System.out.println(failedComparisons);
+
             // Generate the assertions based on the failed trace comparisons
             AssertionGenerator.generateAssertions(failedComparisons, true);
 
