@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static lumutator.util.ANSIEscapeCodes.ANSI_GREEN;
-import static lumutator.util.ANSIEscapeCodes.ANSI_RESET;
-
 /**
  * AssertionGenerator: generates assertions based on the trace comparisons.
  */
@@ -74,19 +71,9 @@ public class AssertionGenerator {
                 );
                 lines.add(adjustedLineNr, assertion);
 
-                if (interactiveMode) {
-                    // TODO: interactive mode
-
+                if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr)) {
+                    // Nothing to do
                 } else {
-                    for (int l = adjustedLineNr - 3; l <= adjustedLineNr + 3; l++) {
-                        if (l >= 0 && l < lines.size()) {
-                            if (l == adjustedLineNr) {
-                                System.out.println(ANSI_GREEN + lines.get(l) + ANSI_RESET);
-                            } else {
-                                System.out.println(lines.get(l));
-                            }
-                        }
-                    }
                     insertionInformation.get(testFile.toString()).add(lineNr);
                     Files.write(testFile, lines);
                 }

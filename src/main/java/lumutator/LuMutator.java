@@ -26,9 +26,12 @@ public class LuMutator {
             Option configOption = new Option("c", "config", true, "Configuration file");
             configOption.setRequired(true);
             options.addOption(configOption);
-
-            Option mutations = new Option("m", "mutants", true, "PITest output directory (usually this is /target/pit-reports)");
-            options.addOption(mutations);
+            options.addOption(
+                    new Option("m", "mutants", true, "PITest output directory (usually this is /target/pit-reports)")
+            );
+            options.addOption(
+                    new Option("a", false, "Auto mode, automatically insert all new assertions in the original test files without asking first")
+            );
 
             CommandLineParser parser = new DefaultParser();
             HelpFormatter formatter = new HelpFormatter();
@@ -47,14 +50,8 @@ public class LuMutator {
             // TODO: add progress(bar)?
 
             // Parse configuration file
-            try {
-                Configuration.getInstance().initialize(cmd.getOptionValue("config"));
-                // TODO: check if all required parameters are present
-            } catch (Exception e) {
-                e.getMessage();
-                System.exit(1);
-                return;
-            }
+            // TODO: check if all required parameters are present
+            Configuration.getInstance().initialize(cmd.getOptionValue("config"));
             Configuration config = Configuration.getInstance();
 
             // Compile project (main and tests)
@@ -79,11 +76,8 @@ public class LuMutator {
             List<JSONCompareResult> failedComparisons =
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
-            // TODO: remove this line
-            System.out.println(failedComparisons);
-
             // Generate the assertions based on the failed trace comparisons
-            AssertionGenerator.generateAssertions(failedComparisons, true);
+            AssertionGenerator.generateAssertions(failedComparisons, cmd.hasOption('a'));
 
         } catch (Exception e) {
             e.printStackTrace();
