@@ -5,7 +5,7 @@
 
 ### Prerequisites
 
-- JDK version 9 or later
+- JDK version 9 or 10
 - Maven
 - PITest
 

@@ -47,8 +47,6 @@ public class LuMutator {
                 return;
             }
 
-            // TODO: add progress(bar)?
-
             // Parse configuration file
             // TODO: check if all required parameters are present
             Configuration.getInstance().initialize(cmd.getOptionValue("config"));

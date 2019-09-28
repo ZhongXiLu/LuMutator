@@ -11,6 +11,7 @@ import lumutator.Configuration;
 import lumutator.Mutant;
 import lumutator.tracer.debugger.Debugger;
 import lumutator.tracer.debugger.Observer;
+import me.tongfei.progressbar.ProgressBar;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
@@ -99,7 +100,7 @@ public abstract class Tracer {
         Configuration config = Configuration.getInstance();
 
         String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
-        for (Mutant mutant : survivedMutants) {
+        for (Mutant mutant : ProgressBar.wrap(survivedMutants, "Tracing Mutants")) {
             final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
             final String newClassFile = mutant.getClassFile().getCanonicalPath();
             final String oldClassFile = classFilesDir + ".class";
