@@ -75,7 +75,7 @@ public class LuMutator {
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
             // Generate the assertions based on the failed trace comparisons
-            AssertionGenerator.generateAssertions(failedComparisons, cmd.hasOption('a'));
+            AssertionGenerator.generateAssertions(failedComparisons, !cmd.hasOption('a'));
 
         } catch (Exception e) {
             e.printStackTrace();
