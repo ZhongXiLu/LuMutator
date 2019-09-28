@@ -27,4 +27,4 @@ sed -i "s/<classPath\/>/<classPath>$(cat cp.txt):target\/classes\/:target\/test-
 mvn test -Dfeatures=+EXPORT org.pitest:pitest-maven:mutationCoverage
 
 # Run LuMutator
-java -jar lumutator-1.0-SNAPSHOT.jar -c config.xml
+java -jar lumutator-1.0-SNAPSHOT.jar -c config.xml -a
