@@ -20,11 +20,11 @@ mv ../lumutator-1.0-SNAPSHOT.jar ./
 
 # Set the classpath in the config.xml
 mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
-sed -i 's/[\/&]/\\&/g' cp.txt   # Escape characters
-sed -i "s/<classPath\/>/<classPath>$(cat cp.txt):target\/classes\/:target\/test-classes\/<\/classPath>/g" config.xml
+sed -i.bak 's/[\/&]/\\&/g' cp.txt # Escape characters
+sed -i.bak "s/<classPath\/>/<classPath>$(cat cp.txt):target\/classes\/:target\/test-classes\/<\/classPath>/g" config.xml
 
 # Mutation analysis using PITest
 mvn test -Dfeatures=+EXPORT org.pitest:pitest-maven:mutationCoverage
 
 # Run LuMutator
-java -jar lumutator-1.0-SNAPSHOT.jar -c config.xml -a
+java -Xmx2048m -jar lumutator-1.0-SNAPSHOT.jar -c config.xml -a
