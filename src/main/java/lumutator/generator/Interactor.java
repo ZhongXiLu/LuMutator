@@ -1,5 +1,6 @@
 package lumutator.generator;
 
+import lumutator.Mutant;
 import lumutator.util.ANSIEscapeCodes;
 
 import java.util.List;
@@ -16,10 +17,13 @@ public class Interactor {
      * @param file   Name of the file in which the new assertion should be added.
      * @param lines  Lines of the file; note that in this list, the new assertion should already be added.
      * @param lineNr The line number of the new assertion.
+     * @param mutant The mutant the new assertion kills.
      * @return True if assertion should be added, otherwise false.
      */
-    public static boolean promptSuggestion(String file, List<String> lines, int lineNr) {
-        // TODO: print mutant info
+    public static boolean promptSuggestion(String file, List<String> lines, int lineNr, Mutant mutant) {
+
+        System.out.println("==============================");
+        System.out.println("\n" + mutant.toString());
 
         System.out.println("\n" + file + ":");
         for (int l = lineNr - 3; l <= lineNr + 3; l++) {

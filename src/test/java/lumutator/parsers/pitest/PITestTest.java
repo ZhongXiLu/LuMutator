@@ -36,7 +36,7 @@ public class PITestTest {
         }
 
         m = new Mutant(
-                new File("src/main/java/some/package/Class.java"),
+                new File("./src/main/java/some/package/Class.java"),
                 new File(""),
                 "some.package.Class",
                 123,
@@ -44,7 +44,7 @@ public class PITestTest {
                 "removed call to some/package/Class::someMethod"
         );
         m2 = new Mutant(
-                new File("src/main/java/some/package/OtherClass.java"),
+                new File("./src/main/java/some/package/OtherClass.java"),
                 new File(""),
                 "some.package.OtherClass",
                 666,

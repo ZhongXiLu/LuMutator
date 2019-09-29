@@ -1,6 +1,11 @@
 package lumutator;
 
+import lumutator.util.ANSIEscapeCodes;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -138,4 +143,40 @@ public class Mutant {
         return Objects.hash(originalFile, lineNr, mutator);
     }
 
+    /**
+     * Get string representation of the mutant.
+     *
+     * @return The string representation.
+     */
+    @Override
+    public String toString() {
+        StringBuilder mutatedLine = new StringBuilder();
+        try {
+            List<String> lines = Files.readAllLines(originalFile.toPath());
+            for (int l = lineNr - 4; l <= lineNr + 2; l++) {
+                if (l >= 0 && l < lines.size()) {
+                    if (l + 1 == lineNr) {
+                        mutatedLine.append(ANSIEscapeCodes.ANSI_YELLOW + (l + 1) + lines.get(l) + ANSIEscapeCodes.ANSI_RESET + "\n");
+                    } else {
+                        mutatedLine.append((l + 1) + lines.get(l) + "\n");
+                    }
+                }
+            }
+
+            return String.format(
+                    "Mutator: %s (%s)\n%s:\n%s",
+                    mutator,
+                    notes,
+                    originalFile.getCanonicalPath(),
+                    mutatedLine.toString()
+            );
+
+        } catch (IOException e) {
+            return String.format(
+                    "Mutator: %s (%s)",
+                    mutator,
+                    notes
+            );
+        }
+    }
 }

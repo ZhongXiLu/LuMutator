@@ -5,6 +5,7 @@ import lumutator.TestEnvironment;
 import lumutator.parsers.pitest.PITest;
 import lumutator.tracer.Tracer;
 import lumutator.tracer.TracerTest;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
     /**
      * The failed comparisons for the bank application.
      */
-    private static List<JSONCompareResult> failedComparisons;
+    private static List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons;
 
     /**
      * Set up the failed comparisons.

@@ -3,6 +3,7 @@ package lumutator.tracer;
 import lumutator.Mutant;
 import lumutator.TestEnvironment;
 import lumutator.parsers.pitest.PITest;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -58,13 +59,13 @@ public class TracerTest extends TestEnvironment {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
             List<Mutant> survivedMutants = PITest.getSurvivedMutants(classLoader.getResource("bank/pit-reports").getPath());
 
-            List<JSONCompareResult> failedComparisons =
+            List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons =
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
             // Three traces differ from the original trace
             assertEquals(3, failedComparisons.size());
-            for (JSONCompareResult comparison : failedComparisons) {
-                assertTrue(comparison.isFailureOnField());
+            for (ImmutablePair<JSONCompareResult, Mutant> comparison : failedComparisons) {
+                assertTrue(comparison.getKey().isFailureOnField());
             }
 
         } catch (Exception e) {

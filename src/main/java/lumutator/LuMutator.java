@@ -5,6 +5,7 @@ import lumutator.parsers.pitest.PITest;
 import lumutator.purity.PurityAnalyzer;
 import lumutator.tracer.Tracer;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
@@ -71,7 +72,7 @@ public class LuMutator {
             );
 
             // Longest step: trace every mutant and compare consequently
-            List<JSONCompareResult> failedComparisons =
+            List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons =
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
             // Generate the assertions based on the failed trace comparisons

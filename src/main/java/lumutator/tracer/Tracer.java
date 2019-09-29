@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONObject;
 import org.skyscreamer.jsonassert.JSONCompare;
 import org.skyscreamer.jsonassert.JSONCompareMode;
@@ -89,14 +90,14 @@ public abstract class Tracer {
      * @param survivedMutants  List of all the survived mutants that need to be traced.
      * @param originalTrace    The trace from the original version of the code.
      * @param inspectorMethods Set of all inspector methods in the source classes.
-     * @return List of all the failed trace comparisons between the original and mutant trace
+     * @return List of all the failed trace comparisons between the original and mutant trace (consists of the json comparison and the associated mutant).
      * @throws IOException    If it failed parsing the test files.
      * @throws ParseException If it failed parsing the test files.
      */
-    public static List<JSONCompareResult> traceAndCompareMutants(
+    public static List<ImmutablePair<JSONCompareResult, Mutant>> traceAndCompareMutants(
             List<Mutant> survivedMutants, JSONObject originalTrace, Set<String> inspectorMethods) throws IOException, ParseException {
 
-        List<JSONCompareResult> failedComparisons = new ArrayList<>();
+        List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons = new ArrayList<>();
         Configuration config = Configuration.getInstance();
 
         String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
@@ -127,7 +128,7 @@ public abstract class Tracer {
             // LENIENT is fastest and we dont need strictness or extensibility checks
             JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
             if (comparison.isFailureOnField()) {
-                failedComparisons.add(comparison);
+                failedComparisons.add(new ImmutablePair<>(comparison, mutant));
             }
         }
         // Restore copy of class of last mutant

@@ -73,7 +73,7 @@ public abstract class PITest {
 
                     // Get details from "details.txt"
                     String mutatedClass = getAttribute(mutantDetails, "clazz");
-                    String originalFile = getOriginalFilePath(mutatedClass);
+                    String originalFile = Configuration.getInstance().get("projectDir") + "/" + getOriginalFilePath(mutatedClass);
                     int lineNr = Integer.parseInt(getAttribute(mutantDetails, "lineNumber"));
                     String mutator = getAttribute(mutantDetails, "mutator");
                     Matcher matcher = Pattern.compile("mutators\\.([^.]+)\\b").matcher(mutator);
@@ -134,7 +134,7 @@ public abstract class PITest {
                     // ORIGINAL FILE
                     // Path to original file isn't stored, so deduct manually
                     String mutatedClass = mutation.getElementsByTagName("mutatedClass").item(0).getTextContent();
-                    String originalFile = getOriginalFilePath(mutatedClass);
+                    String originalFile = Configuration.getInstance().get("projectDir") + "/" + getOriginalFilePath(mutatedClass);
 
                     // MUTATOR
                     String mutator = mutation.getElementsByTagName("mutator").item(0).getTextContent();

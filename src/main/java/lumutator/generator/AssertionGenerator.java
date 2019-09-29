@@ -1,5 +1,7 @@
 package lumutator.generator;
 
+import lumutator.Mutant;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.skyscreamer.jsonassert.FieldComparisonFailure;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
@@ -24,7 +26,7 @@ public class AssertionGenerator {
      *
      * @param failedComparisons List of the failed trace comparisons.
      */
-    public static void generateAssertions(List<JSONCompareResult> failedComparisons) throws IOException {
+    public static void generateAssertions(List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons) throws IOException {
         generateAssertions(failedComparisons, false);
     }
 
@@ -35,13 +37,14 @@ public class AssertionGenerator {
      * @param failedComparisons List of the failed trace comparisons.
      * @param interactiveMode   Ask the user to whether add the new assertions or not.
      */
-    public static void generateAssertions(List<JSONCompareResult> failedComparisons, boolean interactiveMode) throws IOException {
+    public static void generateAssertions(List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons, boolean interactiveMode)
+            throws IOException {
 
         // Keep track in which file and on what line nr we have added new lines
         HashMap<String, List<Integer>> insertionInformation = new HashMap<>();
 
-        for (JSONCompareResult comparison : failedComparisons) {
-            for (FieldComparisonFailure diff : comparison.getFieldFailures()) {
+        for (ImmutablePair<JSONCompareResult, Mutant> comparison : failedComparisons) {
+            for (FieldComparisonFailure diff : comparison.getKey().getFieldFailures()) {
                 String[] parts = diff.getField().split("\\.java\\.");
                 String[] parts2 = parts[1].split("\\.", 2);
 
@@ -71,7 +74,7 @@ public class AssertionGenerator {
                 );
                 lines.add(adjustedLineNr, assertion);
 
-                if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr)) {
+                if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr, comparison.getValue())) {
                     // Nothing to do
                 } else {
                     insertionInformation.get(testFile.toString()).add(lineNr);
