@@ -112,7 +112,7 @@ public abstract class PITest {
      * @param resultsFile The results file from PITest.
      * @return Set of all the survived mutants.
      */
-    static private Set<Mutant> getSurvivedMutantsFromFile(File resultsFile) {
+    static private Set<Mutant> getSurvivedMutantsFromFile(File resultsFile) throws IOException {
         Set<Mutant> survivedMutants = new HashSet<>();
 
         Document doc = null;
@@ -120,7 +120,7 @@ public abstract class PITest {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             doc = dBuilder.parse(resultsFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IOException("Failed parsing the mutations.xml file: " + e.getMessage());
         }
 
         if (doc != null) {

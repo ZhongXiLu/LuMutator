@@ -47,7 +47,7 @@ public final class Configuration {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             this.doc = dBuilder.parse(new File(filename));
         } catch (Exception e) {
-            throw new IOException("Something went wrong with parsing the configuration file: " + e.getMessage());
+            throw new IOException("Failed parsing the configuration file: " + e.getMessage());
         }
         this.doc.getDocumentElement().normalize();
     }

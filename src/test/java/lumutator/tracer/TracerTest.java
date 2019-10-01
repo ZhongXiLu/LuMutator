@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -30,14 +31,8 @@ public class TracerTest extends TestEnvironment {
      */
     @BeforeClass
     public static void setUp() {
-        try {
-            ClassLoader classLoader = TracerTest.class.getClassLoader();
-            originalTrace = Tracer.trace(classLoader.getResource("bank/src/test").getPath(), inspectorMethods);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        ClassLoader classLoader = TracerTest.class.getClassLoader();
+        originalTrace = Tracer.trace(classLoader.getResource("bank/src/test").getPath(), inspectorMethods);
     }
 
     /**
@@ -68,8 +63,8 @@ public class TracerTest extends TestEnvironment {
                 assertTrue(comparison.getKey().isFailureOnField());
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }

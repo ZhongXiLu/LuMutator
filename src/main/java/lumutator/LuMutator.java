@@ -56,6 +56,9 @@ public class LuMutator {
             // Compile project (main and tests)
             Process process = Runtime.getRuntime().exec(config.get("testCommand"), null, new File(config.get("projectDir")));
             process.waitFor();
+            if (process.exitValue() != 0) {
+                throw new RuntimeException("The test command failed; make sure all your tests pass");
+            }
 
             // Purity Analysis
             PurityAnalyzer purityAnalyzer = new PurityAnalyzer();
@@ -79,7 +82,9 @@ public class LuMutator {
             AssertionGenerator.generateAssertions(failedComparisons, !cmd.hasOption('a'));
 
         } catch (Exception e) {
+            System.out.println("LuMutator caught an exception: " + e.getMessage());
             e.printStackTrace();
+            System.exit(1);
         }
 
     }

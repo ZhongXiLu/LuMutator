@@ -87,8 +87,6 @@ public class Observer {
                 } catch (ClassNotLoadedException e) {
                     // TODO: fix this?
 
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -97,8 +95,9 @@ public class Observer {
             json.toString();    // For some reason this prevents a bug (json becomes null)
             // TODO: dont add empty traces
             json.put(String.valueOf(location.lineNumber()), trace);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (AbsentInformationException | IncompatibleThreadStateException e) {
+            throw new RuntimeException("Incompatible thread state: " + e.getMessage());
         }
     }
 

@@ -42,10 +42,8 @@ public abstract class Tracer {
      * @param directory        Directory that contains the test files that need to be traced.
      * @param inspectorMethods Set of all inspector methods in the source classes.
      * @return The traces of the tests.
-     * @throws IOException    If it failed parsing the test files.
-     * @throws ParseException If it failed parsing the test files.
      */
-    public static JSONObject trace(String directory, Set<String> inspectorMethods) throws IOException, ParseException {
+    public static JSONObject trace(String directory, Set<String> inspectorMethods) {
         List<File> testFiles = (List<File>) FileUtils.listFiles(
                 new File(directory),
                 new RegexFileFilter("(?i)^(.*?test.*?)"),       // only match test files
@@ -54,31 +52,36 @@ public abstract class Tracer {
 
         JSONObject traces = new JSONObject();
         for (File file : testFiles) {
-            CompilationUnit compilationUnit = JavaParser.parse(file);
-            final String classToDebug = String.format(
-                    "%s.%s",
-                    compilationUnit.getPackage().getName(),
-                    FilenameUtils.removeExtension(file.getName())
-            );
+            try {
+                CompilationUnit compilationUnit = JavaParser.parse(file);
+                final String classToDebug = String.format(
+                        "%s.%s",
+                        compilationUnit.getPackage().getName(),
+                        FilenameUtils.removeExtension(file.getName())
+                );
 
-            Observer observer = new Observer(inspectorMethods);
-            Debugger debugger = new Debugger(classToDebug, observer);
+                Observer observer = new Observer(inspectorMethods);
+                Debugger debugger = new Debugger(classToDebug, observer);
 
-            // Set breakpoint at start of each test (@Test)
-            for (TypeDeclaration decl : compilationUnit.getTypes()) {
-                for (BodyDeclaration member : decl.getMembers()) {
-                    for (AnnotationExpr annotation : member.getAnnotations()) {
-                        if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
-                            MethodDeclaration field = (MethodDeclaration) member;
-                            debugger.addBreakpoint(field.getName());
+                // Set breakpoint at start of each test (@Test)
+                for (TypeDeclaration decl : compilationUnit.getTypes()) {
+                    for (BodyDeclaration member : decl.getMembers()) {
+                        for (AnnotationExpr annotation : member.getAnnotations()) {
+                            if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
+                                MethodDeclaration field = (MethodDeclaration) member;
+                                debugger.addBreakpoint(field.getName());
+                            }
                         }
                     }
                 }
-            }
 
-            debugger.run();
-            debugger.close();
-            traces.put(file.getCanonicalPath(), observer.getTrace());
+                debugger.run();
+                debugger.close();
+                traces.put(file.getCanonicalPath(), observer.getTrace());
+
+            } catch (ParseException | IOException e) {
+                // Should not be possible
+            }
         }
 
         return traces;
@@ -91,48 +94,51 @@ public abstract class Tracer {
      * @param originalTrace    The trace from the original version of the code.
      * @param inspectorMethods Set of all inspector methods in the source classes.
      * @return List of all the failed trace comparisons between the original and mutant trace (consists of the json comparison and the associated mutant).
-     * @throws IOException    If it failed parsing the test files.
-     * @throws ParseException If it failed parsing the test files.
      */
     public static List<ImmutablePair<JSONCompareResult, Mutant>> traceAndCompareMutants(
-            List<Mutant> survivedMutants, JSONObject originalTrace, Set<String> inspectorMethods) throws IOException, ParseException {
+            List<Mutant> survivedMutants, JSONObject originalTrace, Set<String> inspectorMethods) {
 
         List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons = new ArrayList<>();
         Configuration config = Configuration.getInstance();
 
-        String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
-        for (Mutant mutant : ProgressBar.wrap(survivedMutants, "Tracing Mutants")) {
-            final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
-            final String newClassFile = mutant.getClassFile().getCanonicalPath();
-            final String oldClassFile = classFilesDir + ".class";
-            final String oldClassTempFile = classFilesDir + ".tmp";
+        try {
+            String currentTempFile = "";    // Store current class, so we dont need to make a copy for each mutant
+            for (Mutant mutant : ProgressBar.wrap(survivedMutants, "Tracing Mutants")) {
+                final String classFilesDir = config.get("classFiles") + "/" + mutant.getMutatedClass().replace(".", "/");
+                final String newClassFile = mutant.getClassFile().getCanonicalPath();
+                final String oldClassFile = classFilesDir + ".class";
+                final String oldClassTempFile = classFilesDir + ".tmp";
 
-            // Create copy of original .class file if necessary
-            if (currentTempFile.isEmpty()) {
-                // Start
-                Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
-                currentTempFile = oldClassTempFile;
-            } else if (!currentTempFile.equals(oldClassTempFile)) {
-                // New class
-                Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
-                Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
-                currentTempFile = oldClassTempFile;
-            } // else: Mutants still in same class, no need to make copy of original
+                // Create copy of original .class file if necessary
+                if (currentTempFile.isEmpty()) {
+                    // Start
+                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                    currentTempFile = oldClassTempFile;
+                } else if (!currentTempFile.equals(oldClassTempFile)) {
+                    // New class
+                    Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(Paths.get(oldClassFile), Paths.get(oldClassTempFile), StandardCopyOption.REPLACE_EXISTING);
+                    currentTempFile = oldClassTempFile;
+                } // else: Mutants still in same class, no need to make copy of original
 
-            // Copy the mutant .class file
-            Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
+                // Copy the mutant .class file
+                Files.copy(Paths.get(newClassFile), Paths.get(oldClassFile), StandardCopyOption.REPLACE_EXISTING);
 
-            JSONObject mutantTrace = trace(config.get("testDir"), inspectorMethods);
+                JSONObject mutantTrace = trace(config.get("testDir"), inspectorMethods);
 
-            // Compare traces
-            // LENIENT is fastest and we dont need strictness or extensibility checks
-            JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
-            if (comparison.isFailureOnField()) {
-                failedComparisons.add(new ImmutablePair<>(comparison, mutant));
+                // Compare traces
+                // LENIENT is fastest and we dont need strictness or extensibility checks
+                JSONCompareResult comparison = JSONCompare.compareJSON(originalTrace, mutantTrace, JSONCompareMode.LENIENT);
+                if (comparison.isFailureOnField()) {
+                    failedComparisons.add(new ImmutablePair<>(comparison, mutant));
+                }
             }
+            // Restore copy of class of last mutant
+            Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
+
+        } catch (IOException e) {
+            // Should not be possible
         }
-        // Restore copy of class of last mutant
-        Files.move(Paths.get(currentTempFile), Paths.get(currentTempFile.replace(".tmp", ".class")), StandardCopyOption.REPLACE_EXISTING);
 
         return failedComparisons;
     }

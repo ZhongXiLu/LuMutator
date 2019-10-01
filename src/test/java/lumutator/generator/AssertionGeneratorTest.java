@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONCompareResult;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,8 +47,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             failedComparisons = Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
             assertEquals(3, failedComparisons.size());  // just to make sure
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -62,8 +63,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
             Files.copy(originalFile, Paths.get(originalFile.toString() + ".tmp"), StandardCopyOption.REPLACE_EXISTING);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -78,8 +79,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
             Files.move(Paths.get(originalFile.toString() + ".tmp"), originalFile, StandardCopyOption.REPLACE_EXISTING);
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -106,8 +107,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             assertTrue(expectedAssertions.contains(lines.get(25).trim()));
             assertTrue(expectedAssertions.contains(lines.get(26).trim()));
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -136,8 +137,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             // Just check if a line is added or not, the contents are already checked in `testGenerateAssertions`
             assertEquals(originalLineCount + 1, Files.readAllLines(originalFile).size());  // one extra line
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
     }

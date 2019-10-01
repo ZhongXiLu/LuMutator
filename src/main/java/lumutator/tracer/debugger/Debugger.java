@@ -2,7 +2,9 @@ package lumutator.tracer.debugger;
 
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
+import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.connect.LaunchingConnector;
+import com.sun.jdi.connect.VMStartException;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
@@ -10,6 +12,7 @@ import com.sun.jdi.request.StepRequest;
 import com.sun.tools.example.debug.expr.ExpressionParser;
 import lumutator.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -193,10 +196,11 @@ public class Debugger {
                 }
             }
 
-        } catch (VMDisconnectedException e) {
+        } catch (VMDisconnectedException | InterruptedException e) {
             // VM is disconnected
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (IOException | IllegalConnectorArgumentsException | VMStartException | AbsentInformationException e) {
+            throw new RuntimeException("Failed starting the VM for " + classToDebug + ": " + e.getMessage());
         }
     }
 

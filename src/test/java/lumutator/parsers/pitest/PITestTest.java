@@ -6,6 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
@@ -30,8 +32,8 @@ public class PITestTest {
         ClassLoader classLoader = getClass().getClassLoader();
         try {
             Configuration.getInstance().initialize(classLoader.getResource("default_config.xml").getFile());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            // Should not be possible
             fail();
         }
 
@@ -70,8 +72,8 @@ public class PITestTest {
             assertTrue(survivedMutants.contains(m));
             assertTrue(survivedMutants.contains(m2));
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -97,8 +99,8 @@ public class PITestTest {
             assertNotSame("", survivedMutants.get(0).getClassFile());
             assertNotSame("", survivedMutants.get(1).getClassFile());
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }

@@ -2,6 +2,7 @@ package lumutator.purity;
 
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
@@ -30,8 +31,8 @@ public class PurityAnalyzerTest {
             assertEquals("package.class.methodName", method.invoke(null, line1));
             assertEquals("nested.package.class.methodName2", method.invoke(null, line2));
             assertEquals("class.methodName3", method.invoke(null, line3));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -47,8 +48,8 @@ public class PurityAnalyzerTest {
             assertEquals("domain-specific side-effect free", method.invoke(null, line1));
             assertEquals("impure", method.invoke(null, line2));
             assertEquals("compile time pure", method.invoke(null, line3));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -64,8 +65,8 @@ public class PurityAnalyzerTest {
             assertEquals("", method.invoke(null, line1));
             assertEquals("int,int", method.invoke(null, line2));
             assertEquals("package.otherClass", method.invoke(null, line3));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -81,8 +82,8 @@ public class PurityAnalyzerTest {
             assertEquals("void", method.invoke(null, line1));
             assertEquals("String", method.invoke(null, line2));
             assertEquals("package.class", method.invoke(null, line3));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
@@ -101,8 +102,8 @@ public class PurityAnalyzerTest {
             assertEquals("", method.invoke(null, line3));
             final String line4 = "class{ private int pureMethod() } => compile time pure\n";
             assertEquals("class.pureMethod", method.invoke(null, line4));
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
             fail();
         }
     }
