@@ -114,6 +114,7 @@ public class PurityAnalyzer {
      * @throws IOException If the analysis wasn't successful.
      */
     public Set<String> getInspectorMethods() throws IOException {
+        // TODO: only public methods
         Set<String> inspectorMethods = new HashSet<>();
 
         final String outputDir = new File(Configuration.getInstance().get("classFiles")).getName();

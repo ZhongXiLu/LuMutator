@@ -1,6 +1,12 @@
 package lumutator.generator;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.expr.NameExpr;
 import lumutator.Mutant;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.skyscreamer.jsonassert.FieldComparisonFailure;
 import org.skyscreamer.jsonassert.JSONCompareResult;
@@ -76,12 +82,38 @@ public class AssertionGenerator {
 
                 if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr, comparison.getValue())) {
                     // Nothing to do
+
                 } else {
                     insertionInformation.get(testFile.toString()).add(lineNr);
+
+                    // Add junit import if not already present
+                    try {
+                        boolean importPresent = false;
+                        int importLineNr = 1;
+
+                        CompilationUnit compilationUnit = JavaParser.parse(testFile.toFile());
+                        List<ImportDeclaration> importDecls = compilationUnit.getImports();
+                        for (ImportDeclaration importDecl : importDecls) {
+                            if (importDecl.getName().toString().equals("org.junit.Assert.*") ||
+                                    importDecl.getName().toString().equals("org.junit.Assert.assertEquals")) {
+                                importPresent = true;
+                                break;
+                            }
+                            importLineNr = importDecl.getBeginLine();
+                        }
+
+                        if (!importPresent) {
+                            lines.add(importLineNr, "import static org.junit.Assert.assertEquals;");
+                            insertionInformation.get(testFile.toString()).add(importLineNr);
+                        }
+
+                    } catch (ParseException e) {
+                        // Should not be possible
+                    }
+
                     Files.write(testFile, lines);
                 }
 
-                // TODO: add `import static org.junit.Assert.*;` at top if necessary
 
                 // Only consider one assertion per mutant, this is likely enough to kill the mutant.
                 break;

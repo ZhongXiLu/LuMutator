@@ -85,16 +85,16 @@ public class Observer {
                     addTrace(trace, entry.getKey().name(), entry.getValue());
 
                 } catch (ClassNotLoadedException e) {
-                    // TODO: fix this?
-
+                    // Should not be possible
                 }
             }
 
             // TODO: do other comparisons (e.g. compare local objects to each other)
 
-            json.toString();    // For some reason this prevents a bug (json becomes null)
-            // TODO: dont add empty traces
-            json.put(String.valueOf(location.lineNumber()), trace);
+            if (!trace.isEmpty()) {
+                json.toString();    // For some reason this prevents a bug (json becomes null)
+                json.put(String.valueOf(location.lineNumber()), trace);
+            }
 
         } catch (AbsentInformationException | IncompatibleThreadStateException e) {
             throw new RuntimeException("Incompatible thread state: " + e.getMessage());

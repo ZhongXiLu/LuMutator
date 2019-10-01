@@ -35,7 +35,6 @@ public class Mutant {
 
     /**
      * The type of mutator.
-     * TODO: better to create enum?
      */
     private String mutator;
 
