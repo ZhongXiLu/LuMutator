@@ -103,9 +103,9 @@ public class AssertionGeneratorTest extends TestEnvironment {
             );
             List<String> lines = Files.readAllLines(originalFile);
 
-            assertTrue(expectedAssertions.contains(lines.get(24).trim()));
             assertTrue(expectedAssertions.contains(lines.get(25).trim()));
             assertTrue(expectedAssertions.contains(lines.get(26).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(27).trim()));
 
         } catch (IOException e) {
             // Should not be possible
@@ -135,7 +135,8 @@ public class AssertionGeneratorTest extends TestEnvironment {
             AssertionGenerator.generateAssertions(failedComparisons.subList(1, 2), true);
 
             // Just check if a line is added or not, the contents are already checked in `testGenerateAssertions`
-            assertEquals(originalLineCount + 1, Files.readAllLines(originalFile).size());  // one extra line
+            // Also check if there was a new import statement added
+            assertEquals(originalLineCount + 2, Files.readAllLines(originalFile).size());  // one extra line
 
         } catch (IOException e) {
             // Should not be possible

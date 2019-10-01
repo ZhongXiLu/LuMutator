@@ -27,7 +27,7 @@ public class ObserverTest extends TestEnvironment {
         // Check the traces
         JSONObject trace = observer.getTrace();
         JSONObject expectedTrace = new JSONObject(
-                "{22:{character:98,aInt:42,bool:true,aFloat:1.1,aDouble:12.345,aByte:10},23:{character:98,aInt:42,bool:true,aLong:11111111,aFloat:1.1,aDouble:12.345,aByte:10},24:{character:98,aShort:2,aInt:42,bool:true,aLong:11111111,aFloat:1.1,aDouble:12.345,aByte:10},16:{},17:{bool:true},18:{bool:true,aByte:10},19:{character:98,bool:true,aByte:10},20:{character:98,bool:true,aDouble:12.345,aByte:10},21:{character:98,bool:true,aFloat:1.1,aDouble:12.345,aByte:10}}"
+                "{22:{character:98,aInt:42,bool:true,aFloat:1.1,aDouble:12.345,aByte:10},23:{character:98,aInt:42,bool:true,aLong:11111111,aFloat:1.1,aDouble:12.345,aByte:10},24:{character:98,aShort:2,aInt:42,bool:true,aLong:11111111,aFloat:1.1,aDouble:12.345,aByte:10},17:{bool:true},18:{bool:true,aByte:10},19:{character:98,bool:true,aByte:10},20:{character:98,bool:true,aDouble:12.345,aByte:10},21:{character:98,bool:true,aFloat:1.1,aDouble:12.345,aByte:10}}"
         );
         JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), true);
 
@@ -52,7 +52,7 @@ public class ObserverTest extends TestEnvironment {
         // TODO: inspector method return object
         JSONObject trace = observer.getTrace();
         JSONObject expectedTrace = new JSONObject(
-                "{35:{aString:Hello World!,nullObject:null},31:{},32:{aString:Hello World!}}"
+                "{35:{aString:Hello World!,nullObject:null},32:{aString:Hello World!}}"
         );
         JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), true);
 
@@ -75,7 +75,7 @@ public class ObserverTest extends TestEnvironment {
         // Check the traces
         JSONObject trace = observer.getTrace();
         JSONObject expectedTrace = new JSONObject(
-            "{23:{exceptionThrown:false},24:{exceptionThrown:false,customer1.getName():Jan Janssen,customer1.getBalance():100,customer1.getAccountNumber():091-0342401-48},28:{customer2.getName():Peter Selie,exceptionThrown:false,customer1.getName():Jan Janssen,customer1.getBalance():100,customer1.getAccountNumber():091-0342401-48,customer2.getAccountNumber():091-9871734-31,customer2.getBalance():777},19:{},30:{exceptionThrown:false},31:{exceptionThrown:false}}"
+            "{23:{exceptionThrown:false},24:{exceptionThrown:false,customer1.getName():Jan Janssen,customer1.getBalance():100,customer1.getAccountNumber():091-0342401-48},28:{customer2.getName():Peter Selie,exceptionThrown:false,customer1.getName():Jan Janssen,customer1.getBalance():100,customer1.getAccountNumber():091-0342401-48,customer2.getAccountNumber():091-9871734-31,customer2.getBalance():777},30:{exceptionThrown:false},31:{exceptionThrown:false}}"
         );
         JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), true);
 
