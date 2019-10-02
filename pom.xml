@@ -53,7 +53,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>lumutator.LuMutator</mainClass>
+                            <mainClass>lumutator.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -90,16 +90,35 @@ public class PurityAnalyzer {
         return "";
     }
 
+    /**
+     * Get the access modifier of the method.
+     *
+     * @param line The line in the results file.
+     * @return The access modifier.
+     */
+    static private String getAccessModifier(String line) {
+        String[] parts = line.split(" ");
+        for (String part : parts) {
+            if (part.equals("public") || part.equals("private") || part.equals("protected")) {
+                return part;
+            }
+        }
+        return "default";
+    }
 
     /**
      * Parse a line from the results file from the analysis
      * and return the inspector method's name (and package) if it exists.
      *
-     * @param line A line from the file.
+     * @param line       A line from the file.
+     * @param publicOnly True if only public methods.
      * @return Name of the inspector method, {@code null} if it was not an inspector method.
      */
-    static private String getInspectorMethodIfExists(String line) {
+    static private String getInspectorMethodIfExists(String line, boolean publicOnly) {
         // TODO: everything but impure?
+        if (publicOnly && !getAccessModifier(line).equals("public")) {
+            return "";
+        }
         if (!getPurityResult(line).equals("impure") && getMethodParameters(line).equals("")
                 && !getReturnType(line).equals("void")) {
             return getMethodName(line);
@@ -110,16 +129,16 @@ public class PurityAnalyzer {
     /**
      * Get all the inspector methods from the purity analysis.
      *
+     * @param publicOnly True if only public methods.
      * @return Set of all the inspector methods.
      * @throws IOException If the analysis wasn't successful.
      */
-    public Set<String> getInspectorMethods() throws IOException {
-        // TODO: only public methods
+    public Set<String> getInspectorMethods(boolean publicOnly) throws IOException {
         Set<String> inspectorMethods = new HashSet<>();
 
         final String outputDir = new File(Configuration.getInstance().get("classFiles")).getName();
         for (String line : Files.readAllLines(Paths.get(outputDir, "method-results.csv"))) {
-            String method = getInspectorMethodIfExists(line);
+            String method = getInspectorMethodIfExists(line, publicOnly);
             if (!method.equals("")) {
                 inspectorMethods.add(method);
             }
