@@ -92,24 +92,20 @@ public class AssertionGeneratorTest extends TestEnvironment {
     public void testGenerateAssertions() {
         try {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
-            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
+            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/BankTest.java").getPath());
 
             AssertionGenerator.generateAssertions(failedComparisons);
 
             final List<String> expectedAssertions = Arrays.asList(
-                    "assertEquals(\"091-0342401-48\", customer1.getAccountNumber());",
-                    //"assertEquals(100, customer1.getBalance());",
-                    "assertEquals(\"Jan Janssen\", customer1.getName());"
+                    "assertEquals(\"091-0342401-48\", bank.getLastAddedCustomer().getAccountNumber());",
+                    "assertEquals(100, bank.getLastAddedCustomer().getBalance());",
+                    "assertEquals(\"Jan Janssen\", bank.getLastAddedCustomer().getName());"
             );
             List<String> lines = Files.readAllLines(originalFile);
 
-            assertTrue(expectedAssertions.contains(lines.get(25).trim()));
-            assertTrue(expectedAssertions.contains(lines.get(26).trim()));
-            //assertTrue(expectedAssertions.contains(lines.get(27).trim()));
-
-            // Note: The lines above were commented because apparently, this assertion is added somewhere else
-            // i.e. the mutant is killed via another assertion on another place
-            // this used to be on this place, but since more tests were added, this wasn't the case anymore
+            assertTrue(expectedAssertions.contains(lines.get(46).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(47).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(48).trim()));
 
         } catch (IOException e) {
             // Should not be possible
@@ -124,7 +120,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
     public void testGenerateAssertionsWithInteraction() {
         try {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
-            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
+            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/BankTest.java").getPath());
             int originalLineCount = Files.readAllLines(originalFile).size();
 
             // Test with NO as user input
@@ -136,11 +132,10 @@ public class AssertionGeneratorTest extends TestEnvironment {
 
             // Test with YES as user input
             System.setIn(new ByteArrayInputStream("YES\n".getBytes()));
-            AssertionGenerator.generateAssertions(failedComparisons.subList(2, 3), true);
+            AssertionGenerator.generateAssertions(failedComparisons.subList(1, 2), true);
 
             // Just check if a line is added or not, the contents are already checked in `testGenerateAssertions`
-            // Also check if there was a new import statement added
-            assertEquals(originalLineCount + 2, Files.readAllLines(originalFile).size());  // one extra line
+            assertEquals(originalLineCount + 1, Files.readAllLines(originalFile).size());  // one extra line
 
         } catch (IOException e) {
             // Should not be possible

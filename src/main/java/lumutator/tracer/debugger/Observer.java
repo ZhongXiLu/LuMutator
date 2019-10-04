@@ -57,10 +57,16 @@ public class Observer {
         try {
             Map<LocalVariable, Value> visibleVariables = thread.frame(0).getValues(thread.frame(0).visibleVariables());
 
-            // Check each local variable
+            // (1) Check each local variable
             JSONObject trace = new JSONObject();
             for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
                 traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue());
+            }
+
+            // (2) Check class fields
+            ObjectReference thisObject = thread.frame(0).thisObject();
+            for (Field field: thisObject.referenceType().allFields()) {
+                traceObject(vm, thread, trace, field.name(), thisObject.getValue(field));
             }
 
             // TODO: do other comparisons (e.g. compare local objects to each other)

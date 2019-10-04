@@ -14,6 +14,11 @@ public class Bank {
     private List<Customer> customers;
 
     /**
+     * Reference to last added customer.
+     */
+    private Customer lastAddedCustomer = null;
+
+    /**
      * Create a new bank.
      */
     public Bank() {
@@ -43,6 +48,7 @@ public class Bank {
     public void addCustomer(Customer customer) {
         if (!accountNrExists(customer.getAccountNumber())) {
             customers.add(customer);
+            lastAddedCustomer = customer;
         }
     }
 
@@ -52,10 +58,7 @@ public class Bank {
      * @return Last added customer.
      */
     public Customer getLastAddedCustomer() {
-        if (customers.size() > 0) {
-            return customers.get(customers.size() - 1);
-        }
-        return null;
+        return lastAddedCustomer;
     }
 
     /**

@@ -21,7 +21,8 @@ public class TestEnvironment {
     protected static final Set<String> inspectorMethods = new HashSet<>(Arrays.asList(
             "bank.Customer.getName",
             "bank.Customer.getAccountNumber",
-            "bank.Customer.getBalance"
+            "bank.Customer.getBalance",
+            "bank.Bank.getLastAddedCustomer"
     ));
 
     /**
