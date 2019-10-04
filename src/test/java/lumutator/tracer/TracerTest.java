@@ -42,7 +42,7 @@ public class TracerTest extends TestEnvironment {
     public void testTrace() {
         // No need to check the contents of the trace, this is already done at lower level, see ObserverTest,
         // just make sure there is a trace for each test file.
-        assertEquals(2, originalTrace.length());
+        assertEquals(3, originalTrace.length());
     }
 
     /**

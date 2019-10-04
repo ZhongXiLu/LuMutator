@@ -60,33 +60,7 @@ public class Observer {
             // Check each local variable
             JSONObject trace = new JSONObject();
             for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
-
-                // Check if it's a non-primitive datatype
-                try {
-                    if (entry.getValue() instanceof StringReference || entry.getValue() == null) {
-                        // String and null are considered a "complex" type, enforce primitive type
-                        throw new ClassCastException();
-                    } else {
-                        // TODO: recursive: call again if return value is non-primitive datatype?
-                        // Non-primitive datatype => use inspector methods to inspect state
-                        ClassType classType = (ClassType) entry.getKey().type();
-                        for (Method method : classType.methods()) {
-                            Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
-                            if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
-                                // Execute inspector method
-                                Value value = Debugger.evaluate(String.format("%s.%s()", entry.getKey().name(), method.name()), vm, thread.frame(0));
-                                addTrace(trace, String.format("%s.%s()", entry.getKey().name(), method.name()), value);
-                            }
-                        }
-                    }
-
-                } catch (java.lang.ClassCastException e) {
-                    // Primitive datatype => just get the value
-                    addTrace(trace, entry.getKey().name(), entry.getValue());
-
-                } catch (ClassNotLoadedException e) {
-                    // Should not be possible
-                }
+                traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue());
             }
 
             // TODO: do other comparisons (e.g. compare local objects to each other)
@@ -98,6 +72,50 @@ public class Observer {
 
         } catch (AbsentInformationException | IncompatibleThreadStateException e) {
             throw new RuntimeException("Incompatible thread state: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Trace an object, this might be a of a primitive type or a complex type.
+     * Works recursively, meaning if a method return another object, this object gets traced too.
+     *
+     * @param vm       The current running virtual machine.
+     * @param thread   The current running thread.
+     * @param trace    The current trace.
+     * @param variable Name of the variable, can also be an expression that returns a variable.
+     * @param value    The value of the variable.
+     * @throws IncompatibleThreadStateException If incompatible thread state.
+     */
+    private void traceObject(VirtualMachine vm, ThreadReference thread, JSONObject trace, String variable, Value value)
+            throws IncompatibleThreadStateException {
+
+        // TODO: fix problem with circular dependency => infinite recursion?
+        // TODO: add test for this + extend bank application with `Bank` class
+
+        // Check if it's a non-primitive datatype
+        try {
+            if (value instanceof StringReference || value == null) {
+                // String and null are considered a "complex" type, enforce primitive type
+                throw new ClassCastException();
+            } else {
+                // TODO: recursive: call again if return value is non-primitive datatype?
+                // Non-primitive datatype => use inspector methods to inspect state
+                ClassType classType = (ClassType) value.type();
+                for (Method method : classType.methods()) {
+                    Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
+                    if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
+                        // Execute inspector method
+                        Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
+                        traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
+                        //addTrace(trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
+                    }
+                }
+            }
+
+        } catch (java.lang.ClassCastException e) {
+            // Primitive datatype => just get the value
+            addTrace(trace, variable, value);
+
         }
     }
 
