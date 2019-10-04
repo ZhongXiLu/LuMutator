@@ -58,7 +58,6 @@ public class BankTest {
 
         boolean success = bank.internalTransfer(customer1.getAccountNumber(), customer2.getAccountNumber(), balanceCustomer1);
 
-        assertTrue(success);
         assertEquals(balanceCustomer1 + balanceCustomer2, customer2.getBalance());
     }
 

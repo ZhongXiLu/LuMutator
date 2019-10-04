@@ -1,0 +1,274 @@
+// class version 54.0 (54)
+// access flags 0x21
+public class bank/Bank {
+
+  // compiled from: Bank.java
+
+  // access flags 0x2
+  // signature Ljava/util/List<Lbank/Customer;>;
+  // declaration: customers extends java.util.List<bank.Customer>
+  private Ljava/util/List; customers
+
+  // access flags 0x2
+  private Lbank/Customer; lastAddedCustomer
+
+  // access flags 0x1
+  public <init>()V
+   L0
+    LINENUMBER 24 L0
+    ALOAD 0
+    INVOKESPECIAL java/lang/Object.<init> ()V
+   L1
+    LINENUMBER 19 L1
+    ALOAD 0
+    ACONST_NULL
+    PUTFIELD bank/Bank.lastAddedCustomer : Lbank/Customer;
+   L2
+    LINENUMBER 25 L2
+    ALOAD 0
+    NEW java/util/ArrayList
+    DUP
+    INVOKESPECIAL java/util/ArrayList.<init> ()V
+    PUTFIELD bank/Bank.customers : Ljava/util/List;
+   L3
+    LINENUMBER 26 L3
+    RETURN
+   L4
+    LOCALVARIABLE this Lbank/Bank; L0 L4 0
+    MAXSTACK = 3
+    MAXLOCALS = 1
+
+  // access flags 0x2
+  private accountNrExists(Ljava/lang/String;)Z
+   L0
+    LINENUMBER 35 L0
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    INVOKEINTERFACE java/util/List.iterator ()Ljava/util/Iterator; (itf)
+    ASTORE 2
+   L1
+   FRAME FULL [bank/Bank java/lang/String java/util/Iterator] []
+    ALOAD 2
+    INVOKEINTERFACE java/util/Iterator.hasNext ()Z (itf)
+    IFEQ L2
+    ALOAD 2
+    INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object; (itf)
+    CHECKCAST bank/Customer
+    ASTORE 3
+   L3
+    LINENUMBER 36 L3
+    ALOAD 1
+    ALOAD 3
+    INVOKEVIRTUAL bank/Customer.getAccountNumber ()Ljava/lang/String;
+    INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+   L5
+    LINENUMBER 37 L5
+    ICONST_1
+    IRETURN
+   L4
+    LINENUMBER 39 L4
+   FRAME FULL [bank/Bank java/lang/String java/util/Iterator bank/Customer] []
+    GOTO L1
+   L2
+    LINENUMBER 40 L2
+   FRAME FULL [bank/Bank java/lang/String java/util/Iterator] []
+    ICONST_0
+    IRETURN
+   L6
+    LOCALVARIABLE otherCustomer Lbank/Customer; L3 L4 3
+    LOCALVARIABLE this Lbank/Bank; L0 L6 0
+    LOCALVARIABLE accountNr Ljava/lang/String; L0 L6 1
+    MAXSTACK = 2
+    MAXLOCALS = 4
+
+  // access flags 0x1
+  public addCustomer(Lbank/Customer;)V
+   L0
+    LINENUMBER 49 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKEVIRTUAL bank/Customer.getAccountNumber ()Ljava/lang/String;
+    INVOKESPECIAL bank/Bank.accountNrExists (Ljava/lang/String;)Z
+    IFNE L1
+   L2
+    LINENUMBER 50 L2
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    ALOAD 1
+    INVOKEINTERFACE java/util/List.add (Ljava/lang/Object;)Z (itf)
+    POP
+   L3
+    LINENUMBER 51 L3
+    ALOAD 0
+    ALOAD 1
+    PUTFIELD bank/Bank.lastAddedCustomer : Lbank/Customer;
+   L1
+    LINENUMBER 53 L1
+   FRAME FULL [bank/Bank bank/Customer] []
+    RETURN
+   L4
+    LOCALVARIABLE this Lbank/Bank; L0 L4 0
+    LOCALVARIABLE customer Lbank/Customer; L0 L4 1
+    MAXSTACK = 2
+    MAXLOCALS = 2
+
+  // access flags 0x1
+  public getLastAddedCustomer()Lbank/Customer;
+   L0
+    LINENUMBER 61 L0
+    ALOAD 0
+    GETFIELD bank/Bank.lastAddedCustomer : Lbank/Customer;
+    IFNONNULL L1
+    NEW java/lang/RuntimeException
+    DUP
+    INVOKESPECIAL java/lang/RuntimeException.<init> ()V
+    ATHROW
+   L1
+   FRAME FULL [bank/Bank] []
+    ACONST_NULL
+    ARETURN
+   L2
+    LOCALVARIABLE this Lbank/Bank; L0 L2 0
+    MAXSTACK = 2
+    MAXLOCALS = 1
+
+  // access flags 0x2
+  private getCustomerId(Ljava/lang/String;)I
+   L0
+    LINENUMBER 71 L0
+    ICONST_0
+    ISTORE 2
+   L1
+   FRAME FULL [bank/Bank java/lang/String I] []
+    ILOAD 2
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    INVOKEINTERFACE java/util/List.size ()I (itf)
+    IF_ICMPGE L2
+   L3
+    LINENUMBER 72 L3
+    ALOAD 1
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    ILOAD 2
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object; (itf)
+    CHECKCAST bank/Customer
+    INVOKEVIRTUAL bank/Customer.getAccountNumber ()Ljava/lang/String;
+    INVOKEVIRTUAL java/lang/String.equals (Ljava/lang/Object;)Z
+    IFEQ L4
+   L5
+    LINENUMBER 73 L5
+    ILOAD 2
+    IRETURN
+   L4
+    LINENUMBER 71 L4
+   FRAME FULL [bank/Bank java/lang/String I] []
+    IINC 2 1
+    GOTO L1
+   L2
+    LINENUMBER 76 L2
+   FRAME FULL [bank/Bank java/lang/String I] []
+    ICONST_M1
+    IRETURN
+   L6
+    LOCALVARIABLE i I L1 L2 2
+    LOCALVARIABLE this Lbank/Bank; L0 L6 0
+    LOCALVARIABLE accountNr Ljava/lang/String; L0 L6 1
+    MAXSTACK = 3
+    MAXLOCALS = 3
+
+  // access flags 0x1
+  public internalTransfer(Ljava/lang/String;Ljava/lang/String;I)Z
+   L0
+    LINENUMBER 88 L0
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL bank/Bank.accountNrExists (Ljava/lang/String;)Z
+    IFEQ L1
+    ALOAD 0
+    ALOAD 2
+    INVOKESPECIAL bank/Bank.accountNrExists (Ljava/lang/String;)Z
+    IFEQ L1
+    ILOAD 3
+    IFLE L1
+   L2
+    LINENUMBER 90 L2
+    ALOAD 0
+    ALOAD 1
+    INVOKESPECIAL bank/Bank.getCustomerId (Ljava/lang/String;)I
+    ISTORE 4
+   L3
+    LINENUMBER 91 L3
+    ALOAD 0
+    ALOAD 2
+    INVOKESPECIAL bank/Bank.getCustomerId (Ljava/lang/String;)I
+    ISTORE 5
+   L4
+    LINENUMBER 93 L4
+    ILOAD 4
+    ICONST_M1
+    IF_ICMPEQ L1
+    ILOAD 5
+    ICONST_M1
+    IF_ICMPEQ L1
+   L5
+    LINENUMBER 95 L5
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    ILOAD 4
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object; (itf)
+    CHECKCAST bank/Customer
+    ASTORE 6
+   L6
+    LINENUMBER 96 L6
+    ALOAD 0
+    GETFIELD bank/Bank.customers : Ljava/util/List;
+    ILOAD 5
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object; (itf)
+    CHECKCAST bank/Customer
+    ASTORE 7
+   L7
+    LINENUMBER 98 L7
+    ALOAD 6
+    INVOKEVIRTUAL bank/Customer.getBalance ()I
+    ILOAD 3
+    IF_ICMPLT L1
+   L8
+    LINENUMBER 99 L8
+    ALOAD 6
+    ALOAD 6
+    INVOKEVIRTUAL bank/Customer.getBalance ()I
+    ILOAD 3
+    ISUB
+    INVOKEVIRTUAL bank/Customer.setBalance (I)V
+   L9
+    LINENUMBER 100 L9
+    ALOAD 7
+    ALOAD 7
+    INVOKEVIRTUAL bank/Customer.getBalance ()I
+    ILOAD 3
+    IADD
+    INVOKEVIRTUAL bank/Customer.setBalance (I)V
+   L10
+    LINENUMBER 101 L10
+    ICONST_1
+    IRETURN
+   L1
+    LINENUMBER 106 L1
+   FRAME FULL [bank/Bank java/lang/String java/lang/String I] []
+    ICONST_0
+    IRETURN
+   L11
+    LOCALVARIABLE fromCustomer Lbank/Customer; L6 L1 6
+    LOCALVARIABLE toCustomer Lbank/Customer; L7 L1 7
+    LOCALVARIABLE fromCustomerId I L3 L1 4
+    LOCALVARIABLE toCustomerId I L4 L1 5
+    LOCALVARIABLE this Lbank/Bank; L0 L11 0
+    LOCALVARIABLE fromAccountNr Ljava/lang/String; L0 L11 1
+    LOCALVARIABLE toAccountNr Ljava/lang/String; L0 L11 2
+    LOCALVARIABLE amount I L0 L11 3
+    MAXSTACK = 3
+    MAXLOCALS = 8
+}
+

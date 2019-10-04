@@ -45,7 +45,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
             List<Mutant> survivedMutants = PITest.getSurvivedMutants(classLoader.getResource("bank/pit-reports").getPath());
 
             failedComparisons = Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
-            assertEquals(3, failedComparisons.size());  // just to make sure
+            assertEquals(5, failedComparisons.size());  // just to make sure
 
         } catch (IOException e) {
             // Should not be possible
@@ -60,7 +60,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
     public void setUpBeforeTest() {
         try {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
-            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
+            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/BankTest.java").getPath());
             Files.copy(originalFile, Paths.get(originalFile.toString() + ".tmp"), StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException e) {
@@ -76,7 +76,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
     public void tearDownAfterTest() {
         try {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
-            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/CustomerTest.java").getPath());
+            Path originalFile = Paths.get(classLoader.getResource("bank/src/test/java/bank/BankTest.java").getPath());
             Files.move(Paths.get(originalFile.toString() + ".tmp"), originalFile, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException e) {
@@ -97,15 +97,18 @@ public class AssertionGeneratorTest extends TestEnvironment {
             AssertionGenerator.generateAssertions(failedComparisons);
 
             final List<String> expectedAssertions = Arrays.asList(
-                    "assertEquals(\"091-0342401-48\", bank.getLastAddedCustomer().getAccountNumber());",
                     "assertEquals(100, bank.getLastAddedCustomer().getBalance());",
-                    "assertEquals(\"Jan Janssen\", bank.getLastAddedCustomer().getName());"
+                    "assertEquals(\"Jan Janssen\", bank.getLastAddedCustomer().getName());",
+                    "assertEquals(0, customer1.getBalance());",
+                    "assertEquals(true, success);"
             );
             List<String> lines = Files.readAllLines(originalFile);
 
+            // Expect a new assertion added on following lines
+            assertTrue(expectedAssertions.contains(lines.get(45).trim()));
             assertTrue(expectedAssertions.contains(lines.get(46).trim()));
-            assertTrue(expectedAssertions.contains(lines.get(47).trim()));
-            assertTrue(expectedAssertions.contains(lines.get(48).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(63).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(64).trim()));
 
         } catch (IOException e) {
             // Should not be possible

@@ -82,4 +82,28 @@ public class ObserverTest extends TestEnvironment {
         debugger.close();
     }
 
+    /**
+     * Test if inspector methods are evaluated and if the results of it are stored in the trace.
+     * This time recursively, i.e. an inspector method returns another complex object.
+     */
+    @Test
+    public void testInspectorMethodsRecursive() {
+        // Set up
+        Observer observer = new Observer(inspectorMethods);
+        Debugger debugger = new Debugger("bank.BankTest", observer);
+
+        // Start the debugger
+        debugger.addBreakpoint("testAddingCustomers");
+        debugger.run();
+
+        // Check the traces
+        JSONObject trace = observer.getTrace();
+        JSONObject expectedTrace = new JSONObject(
+            "{45:{customer2.getName():Peter Selie,bank.getLastAddedCustomer().getName():Jan Janssen,customer1.getName():Jan Janssen,customer1.getBalance():100,bank.getLastAddedCustomer().getBalance():100,bank.getLastAddedCustomer().getAccountNumber():091-0342401-48,customer1.getAccountNumber():091-0342401-48,customer2.getAccountNumber():091-9871734-31,customer2.getBalance():777},46:{customer2.getName():Peter Selie,bank.getLastAddedCustomer().getName():Peter Selie,customer1.getName():Jan Janssen,customer1.getBalance():100,bank.getLastAddedCustomer().getBalance():777,bank.getLastAddedCustomer().getAccountNumber():091-9871734-31,customer1.getAccountNumber():091-0342401-48,customer2.getAccountNumber():091-9871734-31,customer2.getBalance():777},47:{customer2.getName():Peter Selie,bank.getLastAddedCustomer().getName():Peter Selie,customer1.getName():Jan Janssen,customer1.getBalance():100,bank.getLastAddedCustomer().getBalance():777,bank.getLastAddedCustomer().getAccountNumber():091-9871734-31,customer1.getAccountNumber():091-0342401-48,customer2.getAccountNumber():091-9871734-31,customer2.getBalance():777}}"
+        );
+        JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), true);
+
+        debugger.close();
+    }
+
 }

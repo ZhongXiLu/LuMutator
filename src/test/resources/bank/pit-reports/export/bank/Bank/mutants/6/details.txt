@@ -1,0 +1,1 @@
+MutationDetails [id=MutationIdentifier [location=Location [clazz=bank.Bank, method=getCustomerId, methodDesc=(Ljava/lang/String;)I], indexes=[11], mutator=org.pitest.mutationtest.engine.gregor.mutators.ConditionalsBoundaryMutator], filename=Bank.java, block=9, lineNumber=71, description=changed conditional boundary, testsInOrder=[], isInFinallyBlock=false, poison=NORMAL]

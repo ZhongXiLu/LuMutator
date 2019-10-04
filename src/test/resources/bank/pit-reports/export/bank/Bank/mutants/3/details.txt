@@ -1,0 +1,1 @@
+MutationDetails [id=MutationIdentifier [location=Location [clazz=bank.Bank, method=addCustomer, methodDesc=(Lbank/Customer;)V], indexes=[7], mutator=org.pitest.mutationtest.engine.gregor.mutators.NegateConditionalsMutator], filename=Bank.java, block=6, lineNumber=49, description=negated conditional, testsInOrder=[], isInFinallyBlock=false, poison=NORMAL]

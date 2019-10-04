@@ -58,7 +58,7 @@ public class TracerTest extends TestEnvironment {
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
 
             // Three traces differ from the original trace
-            assertEquals(3, failedComparisons.size());
+            assertEquals(5, failedComparisons.size());
             for (ImmutablePair<JSONCompareResult, Mutant> comparison : failedComparisons) {
                 assertTrue(comparison.getKey().isFailureOnField());
             }

@@ -4,9 +4,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.expr.NameExpr;
 import lumutator.Mutant;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.skyscreamer.jsonassert.FieldComparisonFailure;
 import org.skyscreamer.jsonassert.JSONCompareResult;
@@ -78,42 +76,45 @@ public class AssertionGenerator {
                         getCorrectFormat(diff.getExpected()),
                         parts2[1]
                 );
-                lines.add(adjustedLineNr, assertion);
 
-                if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr, comparison.getValue())) {
-                    // Nothing to do
+                // Check if mutant is already killed by another assertion
+                if (!lines.get(adjustedLineNr).equals(assertion)) {
+                    lines.add(adjustedLineNr, assertion);
 
-                } else {
-                    insertionInformation.get(testFile.toString()).add(lineNr);
+                    if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr, comparison.getValue())) {
+                        // Nothing to do
 
-                    // Add junit import if not already present
-                    try {
-                        boolean importPresent = false;
-                        int importLineNr = 1;
+                    } else {
+                        insertionInformation.get(testFile.toString()).add(lineNr);
 
-                        CompilationUnit compilationUnit = JavaParser.parse(testFile.toFile());
-                        List<ImportDeclaration> importDecls = compilationUnit.getImports();
-                        for (ImportDeclaration importDecl : importDecls) {
-                            if (importDecl.getName().toString().equals("org.junit.Assert.*") ||
-                                    importDecl.getName().toString().equals("org.junit.Assert.assertEquals")) {
-                                importPresent = true;
-                                break;
+                        // Add junit import if not already present
+                        try {
+                            boolean importPresent = false;
+                            int importLineNr = 1;
+
+                            CompilationUnit compilationUnit = JavaParser.parse(testFile.toFile());
+                            List<ImportDeclaration> importDecls = compilationUnit.getImports();
+                            for (ImportDeclaration importDecl : importDecls) {
+                                if ((importDecl.getName().toString().equals("org.junit.Assert") && importDecl.isAsterisk())
+                                        || importDecl.getName().toString().equals("org.junit.Assert.assertEquals")) {
+                                    importPresent = true;
+                                    break;
+                                }
+                                importLineNr = importDecl.getBeginLine();
                             }
-                            importLineNr = importDecl.getBeginLine();
+
+                            if (!importPresent) {
+                                lines.add(importLineNr, "import static org.junit.Assert.assertEquals;");
+                                insertionInformation.get(testFile.toString()).add(importLineNr);
+                            }
+
+                        } catch (ParseException e) {
+                            // Should not be possible
                         }
 
-                        if (!importPresent) {
-                            lines.add(importLineNr, "import static org.junit.Assert.assertEquals;");
-                            insertionInformation.get(testFile.toString()).add(importLineNr);
-                        }
-
-                    } catch (ParseException e) {
-                        // Should not be possible
+                        Files.write(testFile, lines);
                     }
-
-                    Files.write(testFile, lines);
                 }
-
 
                 // Only consider one assertion per mutant, this is likely enough to kill the mutant.
                 break;
@@ -131,9 +132,14 @@ public class AssertionGenerator {
     private static String getIndentation(String line) {
         Matcher matcher = Pattern.compile("\\s+").matcher(line);
         if (matcher.find()) {
-            return matcher.group();
+            if (line.trim().equals("}")) {
+                // end of scope, so add another indent
+                return matcher.group() + "    ";
+            } else {
+                return matcher.group();
+            }
         }
-        return "            ";
+        return "            ";  // default indent
     }
 
     /**
