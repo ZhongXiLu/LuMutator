@@ -157,7 +157,7 @@ public class AssertionGenerator {
         } else if (value instanceof Character) {
             return String.format("\'%s\'", value);
         }
-        // TODO: else: ArrayReference or ObjectReference
+        // TODO: else: ArrayReference
         // else: no need to format
 
         return value.toString();

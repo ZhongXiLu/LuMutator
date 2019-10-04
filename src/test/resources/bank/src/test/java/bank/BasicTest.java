@@ -30,7 +30,7 @@ public class BasicTest {
     public void testComplexTypes() {
         String aString = "Hello World!";
         Object nullObject = null;
+        // TODO: test array
         //int[] intArray = {3, 2, 1, 0};
-        // TODO: inspector method return object
     }
 }

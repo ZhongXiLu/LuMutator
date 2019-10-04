@@ -49,7 +49,6 @@ public class ObserverTest extends TestEnvironment {
         debugger.run();
 
         // Check the traces
-        // TODO: inspector method return object
         JSONObject trace = observer.getTrace();
         JSONObject expectedTrace = new JSONObject(
                 "{35:{aString:Hello World!,nullObject:null},32:{aString:Hello World!}}"

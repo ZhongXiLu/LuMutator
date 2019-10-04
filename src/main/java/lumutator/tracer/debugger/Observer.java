@@ -3,6 +3,7 @@ package lumutator.tracer.debugger;
 import com.sun.jdi.*;
 import org.json.JSONObject;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -55,22 +56,23 @@ public class Observer {
      */
     public void observe(VirtualMachine vm, ThreadReference thread, Location location) {
         try {
-            Map<LocalVariable, Value> visibleVariables = thread.frame(0).getValues(thread.frame(0).visibleVariables());
+            JSONObject trace = new JSONObject();
 
             // (1) Check each local variable
-            JSONObject trace = new JSONObject();
+            Map<LocalVariable, Value> visibleVariables = thread.frame(0).getValues(thread.frame(0).visibleVariables());
             for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
-                traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue());
+                traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue(), new HashSet<>());
             }
 
             // (2) Check class fields
             ObjectReference thisObject = thread.frame(0).thisObject();
             for (Field field: thisObject.referenceType().allFields()) {
-                traceObject(vm, thread, trace, field.name(), thisObject.getValue(field));
+                traceObject(vm, thread, trace, field.name(), thisObject.getValue(field), new HashSet<>());
             }
 
             // TODO: do other comparisons (e.g. compare local objects to each other)
 
+            // Commit new trace
             if (!trace.isEmpty()) {
                 json.toString();    // For some reason this prevents a bug (json becomes null)
                 json.put(String.valueOf(location.lineNumber()), trace);
@@ -85,18 +87,16 @@ public class Observer {
      * Trace an object, this might be a of a primitive type or a complex type.
      * Works recursively, meaning if a method return another object, this object gets traced too.
      *
-     * @param vm       The current running virtual machine.
-     * @param thread   The current running thread.
-     * @param trace    The current trace.
-     * @param variable Name of the variable, can also be an expression that returns a variable.
-     * @param value    The value of the variable.
+     * @param vm             The current running virtual machine.
+     * @param thread         The current running thread.
+     * @param trace          The current trace.
+     * @param variable       Name of the variable, can also be an expression that returns a variable.
+     * @param value          The value of the variable.
+     * @param visitedClasses Map of all the seen classes, this is just to prevent infinite recursion.
      * @throws IncompatibleThreadStateException If incompatible thread state.
      */
-    private void traceObject(VirtualMachine vm, ThreadReference thread, JSONObject trace, String variable, Value value)
-            throws IncompatibleThreadStateException {
-
-        // TODO: fix problem with circular dependency => infinite recursion?
-        // TODO: add test for this + extend bank application with `Bank` class
+    private void traceObject(VirtualMachine vm, ThreadReference thread, JSONObject trace, String variable, Value value,
+                             HashSet<String> visitedClasses) throws IncompatibleThreadStateException {
 
         // Check if it's a non-primitive datatype
         try {
@@ -104,16 +104,21 @@ public class Observer {
                 // String and null are considered a "complex" type, enforce primitive type
                 throw new ClassCastException();
             } else {
-                // TODO: recursive: call again if return value is non-primitive datatype?
                 // Non-primitive datatype => use inspector methods to inspect state
                 ClassType classType = (ClassType) value.type();
-                for (Method method : classType.methods()) {
-                    Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
-                    if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
-                        // Execute inspector method
-                        Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
-                        traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
-                        //addTrace(trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
+
+                // Check if we're not back at the same class, this is to prevent infinite recursion.
+                if (!visitedClasses.contains(classType.name())) {
+                    visitedClasses.add(classType.name());
+
+                    for (Method method : classType.methods()) {
+                        Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
+                        if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
+                            // Execute inspector method
+                            Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
+                            traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
+                            //addTrace(trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
+                        }
                     }
                 }
             }
@@ -159,7 +164,7 @@ public class Observer {
             if (value instanceof StringReference) {
                 trace.put(key, ((StringReference) value).value());
             }
-            // TODO: else: ArrayReference or ObjectReference
+            // TODO: else: ArrayReference
 
         } else {
             // null
