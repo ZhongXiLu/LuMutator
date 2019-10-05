@@ -97,18 +97,18 @@ public class AssertionGeneratorTest extends TestEnvironment {
             AssertionGenerator.generateAssertions(failedComparisons);
 
             final List<String> expectedAssertions = Arrays.asList(
-                    "assertEquals(100, bank.getLastAddedCustomer().getBalance());",
-                    "assertEquals(\"Jan Janssen\", bank.getLastAddedCustomer().getName());",
+                    "assertEquals(100, customer1.getBalance());",
+                    "assertEquals(\"Jan Janssen\", customer1.getName());",
                     "assertEquals(0, customer1.getBalance());",
                     "assertEquals(true, success);"
             );
             List<String> lines = Files.readAllLines(originalFile);
 
             // Expect a new assertion added on following lines
-            assertTrue(expectedAssertions.contains(lines.get(45).trim()));
-            assertTrue(expectedAssertions.contains(lines.get(46).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(35).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(36).trim()));
+            assertTrue(expectedAssertions.contains(lines.get(62).trim()));
             assertTrue(expectedAssertions.contains(lines.get(63).trim()));
-            assertTrue(expectedAssertions.contains(lines.get(64).trim()));
 
         } catch (IOException e) {
             // Should not be possible

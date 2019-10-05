@@ -27,14 +27,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Tracer: trace a set of tests.
  */
 public abstract class Tracer {
+
+    /**
+     * All the JUnit annotations for the "tests".
+     */
+    private static final Set<String> junitAnnotations = new HashSet<>(Arrays.asList(
+            "Test", "Before", "After", "BeforeClass", "AfterClass"
+    ));
 
     /**
      * Trace a set of tests.
@@ -67,7 +72,7 @@ public abstract class Tracer {
                 for (TypeDeclaration decl : compilationUnit.getTypes()) {
                     for (BodyDeclaration member : decl.getMembers()) {
                         for (AnnotationExpr annotation : member.getAnnotations()) {
-                            if (annotation.getName().toString().equals("Test")) {   // TODO: also include @Before, ...?
+                            if (junitAnnotations.contains(annotation.getName().toString())) {
                                 MethodDeclaration field = (MethodDeclaration) member;
                                 debugger.addBreakpoint(field.getName());
                             }

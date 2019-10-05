@@ -67,12 +67,12 @@ public class AssertionGenerator {
                 // and add the amount of new lines to the original line nr
                 final int adjustedLineNr = lineNr + Math.toIntExact(
                         insertionInformation.get(testFile.toString()).stream().filter(l -> l < lineNr).count()
-                );
+                ) - 1;
 
                 List<String> lines = Files.readAllLines(testFile);
                 final String assertion = String.format(
                         "%sassertEquals(%s, %s);",
-                        getIndentation(lines.get(adjustedLineNr)),
+                        getIndentation(lines.get(adjustedLineNr + 1)),
                         getCorrectFormat(diff.getExpected()),
                         parts2[1]
                 );

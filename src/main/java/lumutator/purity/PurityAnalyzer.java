@@ -115,7 +115,6 @@ public class PurityAnalyzer {
      * @return Name of the inspector method, {@code null} if it was not an inspector method.
      */
     static private String getInspectorMethodIfExists(String line, boolean publicOnly) {
-        // TODO: everything but impure?
         if (publicOnly && !getAccessModifier(line).equals("public")) {
             return "";
         }
