@@ -1,7 +1,6 @@
 package lumutator.tracer.debugger;
 
 import com.sun.jdi.*;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashSet;
@@ -66,7 +65,7 @@ public class Observer {
                 traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue(), new HashSet<>());
             }
 
-            // (2) Check class fields
+            // (2) Check class fields (i.e. fields of the test class itself)
             ObjectReference thisObject = thread.frame(0).thisObject();
             for (Field field: thisObject.referenceType().allFields()) {
                 traceObject(vm, thread, trace, field.name(), thisObject.getValue(field), new HashSet<>());
@@ -121,12 +120,21 @@ public class Observer {
                 if (!visitedClasses.contains(classType.name())) {
                     visitedClasses.add(classType.name());
 
+                    // (1) Inspector methods
                     for (Method method : classType.methods()) {
                         Matcher matcher = Pattern.compile("([^(]+)\\(").matcher(method.toString());
                         if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
                             // Execute inspector method
                             Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
                             traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
+                        }
+                    }
+
+                    // (2) Public member fields
+                    ObjectReference objectRef = (ObjectReference) value;
+                    for (Field field : classType.visibleFields()) {
+                        if (field.isPublic()) {
+                            traceObject(vm, thread, trace, String.format("%s.%s", variable, field.name()), objectRef.getValue(field), visitedClasses);
                         }
                     }
                 }
