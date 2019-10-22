@@ -147,7 +147,6 @@ public class Debugger {
                         final ClassType classType = (ClassType) evt.referenceType();
 
                         // Set a breakpoint at the start of each method
-                        // TODO: also test extended methods?
                         for (Method method : classType.methods()) {
                             if (breakpoints.contains(method.name())) {
                                 List<Location> locations = method.allLineLocations();

@@ -1,9 +1,11 @@
 package lumutator.tracer.debugger;
 
 import com.sun.jdi.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -101,8 +103,16 @@ public class Observer {
         // Check if it's a non-primitive datatype
         try {
             if (value instanceof StringReference || value == null) {
-                // String and null are considered a "complex" type, enforce primitive type
+                // String and null are here considered a "complex" type, enforce primitive type
                 throw new ClassCastException();
+
+            } else if (value instanceof ArrayReference) {
+                // Array
+                List<Value> values = ((ArrayReference) value).getValues();
+                for (int i = 0; i < values.size(); i++) {
+                    traceObject(vm, thread, trace, String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
+                }
+
             } else {
                 // Non-primitive datatype => use inspector methods to inspect state
                 ClassType classType = (ClassType) value.type();
@@ -117,7 +127,6 @@ public class Observer {
                             // Execute inspector method
                             Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
                             traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
-                            //addTrace(trace, String.format("%s.%s()", variable, method.name()), evaluatedValue);
                         }
                     }
                 }
@@ -164,7 +173,6 @@ public class Observer {
             if (value instanceof StringReference) {
                 trace.put(key, ((StringReference) value).value());
             }
-            // TODO: else: ArrayReference
 
         } else {
             // null

@@ -51,7 +51,7 @@ public class ObserverTest extends TestEnvironment {
         // Check the traces
         JSONObject trace = observer.getTrace();
         JSONObject expectedTrace = new JSONObject(
-                "{35:{aString:Hello World!,nullObject:null},32:{aString:Hello World!}}"
+                "{33:{aString:Hello World!,nullObject:null},34:{\"intArray[3]\":0,\"intArray[2]\":1,aString:Hello World!,\"intArray[1]\":2,\"intArray[0]\":3,nullObject:null},32:{aString:Hello World!}}"
         );
         JSONAssert.assertEquals(expectedTrace.toString(), trace.toString(), true);
 
