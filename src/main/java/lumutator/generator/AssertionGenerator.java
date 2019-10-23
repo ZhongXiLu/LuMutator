@@ -47,8 +47,8 @@ public class AssertionGenerator {
         // Keep track in which file and on what line nr we have added new lines
         HashMap<String, List<Integer>> insertionInformation = new HashMap<>();
 
-        for (ImmutablePair<JSONCompareResult, Mutant> comparison : failedComparisons) {
-            for (FieldComparisonFailure diff : comparison.getKey().getFieldFailures()) {
+        for (int i = 0; i < failedComparisons.size(); i++) {
+            for (FieldComparisonFailure diff : failedComparisons.get(i).getKey().getFieldFailures()) {
                 String[] parts = diff.getField().split("\\.java\\.");
                 String[] parts2 = parts[1].split("\\.", 2);
 
@@ -81,7 +81,9 @@ public class AssertionGenerator {
                 if (!lines.get(adjustedLineNr).equals(assertion)) {
                     lines.add(adjustedLineNr, assertion);
 
-                    if (interactiveMode && !Interactor.promptSuggestion(testFile.toString(), lines, adjustedLineNr, comparison.getValue())) {
+                    if (interactiveMode && !Interactor.promptSuggestion(
+                            testFile.toString(), lines, adjustedLineNr, failedComparisons.get(i).getValue(), i + 1, failedComparisons.size())
+                    ) {
                         // Nothing to do
 
                     } else {
@@ -139,7 +141,7 @@ public class AssertionGenerator {
                 return matcher.group();
             }
         }
-        return "            ";  // default indent
+        return "        ";  // default indent
     }
 
     /**

@@ -71,8 +71,6 @@ public class Observer {
                 traceObject(vm, thread, trace, field.name(), thisObject.getValue(field), new HashSet<>());
             }
 
-            // TODO: do other comparisons (e.g. compare local objects to each other)
-
             // Commit new trace
             if (!trace.isEmpty()) {
                 json.toString();    // For some reason this prevents a bug (json becomes null)
