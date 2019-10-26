@@ -62,13 +62,13 @@ public class Observer {
             // (1) Check each local variable
             Map<LocalVariable, Value> visibleVariables = thread.frame(0).getValues(thread.frame(0).visibleVariables());
             for (Map.Entry<LocalVariable, Value> entry : visibleVariables.entrySet()) {
-                traceObject(vm, thread, trace, entry.getKey().name(), entry.getValue(), new HashSet<>());
+                traceObject(vm, thread, trace, entry.getKey().typeName(), entry.getKey().name(), entry.getValue(), new HashSet<>());
             }
 
             // (2) Check class fields (i.e. fields of the test class itself)
             ObjectReference thisObject = thread.frame(0).thisObject();
             for (Field field: thisObject.referenceType().allFields()) {
-                traceObject(vm, thread, trace, field.name(), thisObject.getValue(field), new HashSet<>());
+                traceObject(vm, thread, trace, field.typeName(), field.name(), thisObject.getValue(field), new HashSet<>());
             }
 
             // Commit new trace
@@ -89,13 +89,14 @@ public class Observer {
      * @param vm             The current running virtual machine.
      * @param thread         The current running thread.
      * @param trace          The current trace.
+     * @param varType        The type assigned to the variable (does NOT necessarily equal to the type of the variable).
      * @param variable       Name of the variable, can also be an expression that returns a variable.
      * @param value          The value of the variable.
      * @param visitedClasses Map of all the seen classes, this is just to prevent infinite recursion.
      * @throws IncompatibleThreadStateException If incompatible thread state.
      */
-    private void traceObject(VirtualMachine vm, ThreadReference thread, JSONObject trace, String variable, Value value,
-                             HashSet<String> visitedClasses) throws IncompatibleThreadStateException {
+    private void traceObject(VirtualMachine vm, ThreadReference thread, JSONObject trace, String varType, String variable,
+                             Value value, HashSet<String> visitedClasses) throws IncompatibleThreadStateException {
 
         // Check if it's a non-primitive datatype
         try {
@@ -107,7 +108,7 @@ public class Observer {
                 // Array
                 List<Value> values = ((ArrayReference) value).getValues();
                 for (int i = 0; i < values.size(); i++) {
-                    traceObject(vm, thread, trace, String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
+                    traceObject(vm, thread, trace, values.get(i).type().name(), String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
                 }
 
             } else {
@@ -124,7 +125,13 @@ public class Observer {
                         if (matcher.find() && inspectorMethods.contains(matcher.group(1))) {
                             // Execute inspector method
                             Value evaluatedValue = Debugger.evaluate(String.format("%s.%s()", variable, method.name()), vm, thread.frame(0));
-                            traceObject(vm, thread, trace, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
+                            // Check if casting is needed
+                            String returnType = method.returnTypeName();
+                            if (varType.equals(classType.name())) {
+                                traceObject(vm, thread, trace, returnType, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
+                            } else {
+                                traceObject(vm, thread, trace, returnType, String.format("((%s) %s).%s()", classType.name(), variable, method.name()), evaluatedValue, visitedClasses);
+                            }
                         }
                     }
 
@@ -132,7 +139,7 @@ public class Observer {
                     ObjectReference objectRef = (ObjectReference) value;
                     for (Field field : classType.visibleFields()) {
                         if (field.isPublic()) {
-                            traceObject(vm, thread, trace, String.format("%s.%s", variable, field.name()), objectRef.getValue(field), visitedClasses);
+                            traceObject(vm, thread, trace, field.typeName(), String.format("%s.%s", variable, field.name()), objectRef.getValue(field), visitedClasses);
                         }
                     }
                 }

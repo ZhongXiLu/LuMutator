@@ -61,7 +61,6 @@ public class Debugger {
      * @param observer     Observer to be used at each breakpoint to observe the current state.
      */
     public Debugger(String classToDebug, Observer observer) {
-        //System.out.println("=== Debugging " + classToDebug + " ===");
         this.classToDebug = classToDebug;
         this.observer = observer;
 
@@ -140,7 +139,6 @@ public class Debugger {
             while ((eventSet = vm.eventQueue().remove(100)) != null) {
 
                 for (Event event : eventSet) {
-                    //System.out.println(event);
 
                     if (event instanceof ClassPrepareEvent) {
                         final ClassPrepareEvent evt = (ClassPrepareEvent) event;
