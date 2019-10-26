@@ -28,3 +28,6 @@ mvn test -Dfeatures=+EXPORT org.pitest:pitest-maven:mutationCoverage
 
 # Run LuMutator
 java -Xmx2048m -jar lumutator-1.0-SNAPSHOT.jar -c config.xml -a
+
+# Rerun mutation analysis
+mvn test org.pitest:pitest-maven:mutationCoverage
