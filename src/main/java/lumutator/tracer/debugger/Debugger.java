@@ -8,6 +8,7 @@ import com.sun.jdi.connect.VMStartException;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.ClassPrepareRequest;
+import com.sun.jdi.request.DuplicateRequestException;
 import com.sun.jdi.request.StepRequest;
 import com.sun.tools.example.debug.expr.ExpressionParser;
 import lumutator.Configuration;
@@ -174,9 +175,13 @@ public class Debugger {
                             currentMethod = location.method().name();
 
                             // Create new step (over) request
-                            StepRequest stepRequest = event.virtualMachine().eventRequestManager().createStepRequest(
-                                    thread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
-                            stepRequest.enable();
+                            try {
+                                StepRequest stepRequest = event.virtualMachine().eventRequestManager().createStepRequest(
+                                        thread, StepRequest.STEP_LINE, StepRequest.STEP_OVER);
+                                stepRequest.enable();
+                            } catch (DuplicateRequestException e) {
+                                // Skip
+                            }
                         }
 
                         // Check if still in current method

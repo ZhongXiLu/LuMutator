@@ -67,8 +67,10 @@ public class Observer {
 
             // (2) Check class fields (i.e. fields of the test class itself)
             ObjectReference thisObject = thread.frame(0).thisObject();
-            for (Field field: thisObject.referenceType().allFields()) {
-                traceObject(vm, thread, trace, field.typeName(), field.name(), thisObject.getValue(field), new HashSet<>());
+            if (thisObject != null) {
+                for (Field field : thisObject.referenceType().allFields()) {
+                    traceObject(vm, thread, trace, field.typeName(), field.name(), thisObject.getValue(field), new HashSet<>());
+                }
             }
 
             // Commit new trace
@@ -108,7 +110,11 @@ public class Observer {
                 // Array
                 List<Value> values = ((ArrayReference) value).getValues();
                 for (int i = 0; i < values.size(); i++) {
-                    traceObject(vm, thread, trace, values.get(i).type().name(), String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
+                    if (values.get(i) != null) {
+                        traceObject(vm, thread, trace, values.get(i).type().name(), String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
+                    } else {
+                        traceObject(vm, thread, trace, null, String.format("%s[%s]", variable, i), values.get(i), visitedClasses);
+                    }
                 }
 
             } else {
