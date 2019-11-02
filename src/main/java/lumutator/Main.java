@@ -50,8 +50,8 @@ public class Main {
 
             // Parse mutations file from PITest
             List<Mutant> survivedMutants = PITest.getSurvivedMutants(
-                    cmd.hasOption("mutations") ?
-                            cmd.getOptionValue("mutations") :
+                    cmd.hasOption("mutants") ?
+                            cmd.getOptionValue("mutants") :
                             Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
             );
 
