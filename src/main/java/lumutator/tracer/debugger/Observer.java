@@ -136,7 +136,8 @@ public class Observer {
                             if (varType.equals(classType.name())) {
                                 traceObject(vm, thread, trace, returnType, String.format("%s.%s()", variable, method.name()), evaluatedValue, visitedClasses);
                             } else {
-                                traceObject(vm, thread, trace, returnType, String.format("((%s) %s).%s()", classType.name(), variable, method.name()), evaluatedValue, visitedClasses);
+                                String castToClass = classType.name().replace('$', '.');
+                                traceObject(vm, thread, trace, returnType, String.format("((%s) %s).%s()", castToClass, variable, method.name()), evaluatedValue, visitedClasses);
                             }
                         }
                     }
