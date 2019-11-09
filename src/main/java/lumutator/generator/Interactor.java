@@ -31,9 +31,9 @@ public class Interactor {
         for (int l = lineNr - 3; l <= lineNr + 3; l++) {
             if (l >= 0 && l < lines.size()) {
                 if (l == lineNr) {
-                    System.out.println(ANSIEscapeCodes.ANSI_GREEN + (l+1) + lines.get(l) + ANSIEscapeCodes.ANSI_RESET);
+                    System.out.println(ANSIEscapeCodes.ANSI_GREEN + "+ " + (l+1) + lines.get(l) + ANSIEscapeCodes.ANSI_RESET);
                 } else {
-                    System.out.println((l+1) + lines.get(l));
+                    System.out.println("  " + (l+1) + lines.get(l));
                 }
             }
         }

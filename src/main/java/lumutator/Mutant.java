@@ -155,9 +155,9 @@ public class Mutant {
             for (int l = lineNr - 4; l <= lineNr + 2; l++) {
                 if (l >= 0 && l < lines.size()) {
                     if (l + 1 == lineNr) {
-                        mutatedLine.append(ANSIEscapeCodes.ANSI_YELLOW + (l + 1) + lines.get(l) + ANSIEscapeCodes.ANSI_RESET + "\n");
+                        mutatedLine.append(ANSIEscapeCodes.ANSI_YELLOW + "! " + (l + 1) + lines.get(l) + ANSIEscapeCodes.ANSI_RESET + "\n");
                     } else {
-                        mutatedLine.append((l + 1) + lines.get(l) + "\n");
+                        mutatedLine.append("  " + (l + 1) + lines.get(l) + "\n");
                     }
                 }
             }
