@@ -118,9 +118,10 @@ public class PurityAnalyzer {
         if (publicOnly && !getAccessModifier(line).equals("public")) {
             return "";
         }
+        String methodName = getMethodName(line);
         if (!getPurityResult(line).equals("impure") && getMethodParameters(line).equals("")
-                && !getReturnType(line).equals("void")) {
-            return getMethodName(line);
+                && !getReturnType(line).equals("void") && !methodName.contains("hashCode")) {
+            return methodName;
         }
         return "";
     }
