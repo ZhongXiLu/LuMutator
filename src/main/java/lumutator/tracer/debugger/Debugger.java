@@ -143,17 +143,21 @@ public class Debugger {
 
                     if (event instanceof ClassPrepareEvent) {
                         final ClassPrepareEvent evt = (ClassPrepareEvent) event;
-                        final ClassType classType = (ClassType) evt.referenceType();
+                        try {
+                            final ClassType classType = (ClassType) evt.referenceType();
 
-                        // Set a breakpoint at the start of each method
-                        for (Method method : classType.methods()) {
-                            if (breakpoints.contains(method.name())) {
-                                List<Location> locations = method.allLineLocations();
-                                if (!locations.isEmpty()) {
-                                    BreakpointRequest breakRequest = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
-                                    breakRequest.enable();
+                            // Set a breakpoint at the start of each method
+                            for (Method method : classType.methods()) {
+                                if (breakpoints.contains(method.name())) {
+                                    List<Location> locations = method.allLineLocations();
+                                    if (!locations.isEmpty()) {
+                                        BreakpointRequest breakRequest = vm.eventRequestManager().createBreakpointRequest(locations.get(0));
+                                        breakRequest.enable();
+                                    }
                                 }
                             }
+                        } catch (java.lang.ClassCastException e) {
+                            // Interface type => can't instantiate, just skip
                         }
                     }
 
