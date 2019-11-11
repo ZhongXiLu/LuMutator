@@ -146,7 +146,11 @@ public class Observer {
                     ObjectReference objectRef = (ObjectReference) value;
                     for (Field field : classType.visibleFields()) {
                         if (field.isPublic()) {
-                            traceObject(vm, thread, trace, field.typeName(), String.format("%s.%s", variable, field.name()), objectRef.getValue(field), visitedClasses);
+                            try {
+                                traceObject(vm, thread, trace, field.typeName(), String.format("%s.%s", variable, field.name()), objectRef.getValue(field), visitedClasses);
+                            } catch (ObjectCollectedException e) {
+                                // Object has been garbage collected
+                            }
                         }
                     }
                 }
