@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assume LuMutator is already packaged in jar file
-cp target/lumutator-1.0-SNAPSHOT.jar smoketest/
+cp pitest-example/target/pitest-example-1.0.jar smoketest/lumutator-pitest-1.0-SNAPSHOT.jar
 cd smoketest
 
 # Download the project if necessary
@@ -16,7 +16,7 @@ cd JPacman
 mvn clean
 cp ../pom.xml ./
 cp ../config.xml ./
-mv ../lumutator-1.0-SNAPSHOT.jar ./
+mv ../lumutator-pitest-1.0-SNAPSHOT.jar ./
 
 # Set the classpath in the config.xml
 mvn dependency:build-classpath -Dmdep.outputFile=cp.txt
@@ -27,7 +27,7 @@ sed -i.bak "s/<classPath\/>/<classPath>$(cat cp.txt):target\/classes\/:target\/t
 mvn test -Dfeatures=+EXPORT org.pitest:pitest-maven:mutationCoverage
 
 # Run LuMutator
-java -Xmx2048m -jar lumutator-1.0-SNAPSHOT.jar -c config.xml -a
+java -Xmx2048m -jar lumutator-pitest-1.0-SNAPSHOT.jar -c config.xml -a
 
 # Rerun mutation analysis
 mvn test org.pitest:pitest-maven:mutationCoverage
