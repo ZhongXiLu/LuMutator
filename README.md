@@ -1,20 +1,15 @@
 # LuMutator [![Build Status](https://travis-ci.com/ZhongXiLu/LuMutator.svg?token=8ED8fdyNhxKsYhegKEJg&branch=master)](https://travis-ci.com/ZhongXiLu/LuMutator)
 
 *A tool that expands tests to kill survived mutants*
+<img src="https://i.imgur.com/NYZ0ZK7.png" width="800">
 
+### Download
 
-### Prerequisites
-
-- JDK version 9 or 10
-- Maven
-- PITest
-
-### Build
-
-- Run the tests: `mvn test`
-- Build the jar file: `mvn package`
+Visit the [releases page](https://github.com/ZhongXiLu/LuMutator/releases) to download LuMutator.
 
 ### How to use
+
+#### Using PITest
 
 1. First let PITest run the mutation analysis and generate the reports,
 make sure there's a directory `/target/pit-reports` present afterwards.
@@ -45,9 +40,13 @@ The `pom.xml` file may look something like this:
 </build>
 ```
 
-2. Set up a config file for LuMutator; a default one can be found in `config.xml`.
+2. Set up the config file for LuMutator; a default one can be downloaded on the [releases page](https://github.com/ZhongXiLu/LuMutator/releases).
 
 3. Now everything is ready to call LuMutator:
 ```bash
-java -jar lumutator-1.0-SNAPSHOT.jar -c config.xml
+java -jar lumutator-pitest-1.0.jar -c config.xml
 ```
+
+#### Using another mutation tool
+
+Use the `lumutator-core-1.0.jar` library to call LuMutator and pass the survived mutants. An example of how this is done can be found in the `pitest-example` module.
