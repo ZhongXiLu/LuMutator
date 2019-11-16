@@ -5,45 +5,23 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macOS-latest]
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
-    - name: Cache OpenJDK (linux)
+    - name: Cache OpenJDK
       id: cache_linux
-      if: matrix.os == 'ubuntu-latest'
       uses: actions/cache@v1
       with:
         path: openjdk-10_linux-x64_bin.tar.gz
         key: openjdk-10_linux-x64_bin.tar.gz
-    - name: Cache OpenJDK (osx)
-      id: cache_osx
-      if: matrix.os == 'macOS-latest'
-      uses: actions/cache@v1
-      with:
-        path: openjdk-10_osx-x64_bin.tar.gz
-        key: openjdk-10_osx-x64_bin.tar.gz
     - run: curl -O "https://download.java.net/java/GA/jdk10/10/binaries/openjdk-10_linux-x64_bin.tar.gz"
       if: steps.cache_linux.outputs.cache-hit != 'true'
-    - run: curl -O "https://download.java.net/java/GA/jdk10/10/binaries/openjdk-10_osx-x64_bin.tar.gz"
-      if: steps.cache_osx.outputs.cache-hit != 'true'
-    - name: Set Java (linux)
-      if: matrix.os == 'ubuntu-latest'
+    - name: Set Java
       uses: actions/setup-java@master
       with:
         version: 10
         architecture: x64
         jdkFile: ./openjdk-10_linux-x64_bin.tar.gz
-    - name: Set Java (osx)
-      if: matrix.os == 'macOS-latest'
-      uses: actions/setup-java@master
-      with:
-        version: 10
-        architecture: x64
-        jdkFile: ./openjdk-10_osx-x64_bin.tar.gz
     - name: Build jar file
       run: mvn -B package --file pom.xml
-
