@@ -1,0 +1,22 @@
+name: Java CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - run: curl -O "https://download.java.net/java/GA/jdk10/10/binaries/openjdk-10_linux-x64_bin.tar.gz"
+    - name: Set Java
+      uses: actions/setup-java@master
+      with:
+        version: 10
+        architecture: x64
+        jdkFile: ./openjdk-10_linux-x64_bin.tar.gz
+    - name: Unit Tests
+      run: mvn test -B
+    - name: Build jar file
+      run: mvn -B package --file pom.xml
