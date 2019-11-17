@@ -1,11 +1,36 @@
-# LuMutator [![Build Status](https://travis-ci.com/ZhongXiLu/LuMutator.svg?token=8ED8fdyNhxKsYhegKEJg&branch=master)](https://travis-ci.com/ZhongXiLu/LuMutator)
+# LuMutator
+[![Build Status](https://travis-ci.com/ZhongXiLu/LuMutator.svg?token=8ED8fdyNhxKsYhegKEJg&branch=master)](https://travis-ci.com/ZhongXiLu/LuMutator)
+![](https://github.com/ZhongXiLu/LuMutator/workflows/.github/workflows/maven.yml/badge.svg)
 
 *A tool that expands tests to kill survived mutants*
-<img src="https://i.imgur.com/NYZ0ZK7.png" width="800">
+
+```diff
+Mutator: MathMutator (Replaced integer subtraction with addition)
+src/main/java/bank/Bank.java:
+  96                Customer toCustomer = customers.get(toCustomerId);
+  97
+  98                if (fromCustomer.getBalance() >= amount) {
+! 99                    fromCustomer.setBalance(fromCustomer.getBalance() - amount);
+  100                    toCustomer.setBalance(toCustomer.getBalance() + amount);
+  101                    return true;
+  102                }
+
+
+src/test/java/bank/BankTest.java:
+  58
+  59        boolean success = bank.internalTransfer(customer1.getAccountNumber(), customer2.getAccountNumber(), balanceCustomer1);
+  60
++ 61        assertEquals(0, customer1.getBalance());
+  62        assertEquals(balanceCustomer1 + balanceCustomer2, customer2.getBalance());
+  63    }
+  64
+
+(4/5) Add this new assertion? (Y/N):
+```
 
 ### Download
 
-Visit the [releases page](https://github.com/ZhongXiLu/LuMutator/releases) to download LuMutator.
+Either visit the [releases page](https://github.com/ZhongXiLu/LuMutator/releases) to directly download the jar files or visit [packages page](https://github.com/ZhongXiLu/LuMutator/packages) to add the jar files to your `pom.xml`.
 
 ### How to use
 
@@ -44,7 +69,7 @@ The `pom.xml` file may look something like this:
 
 3. Now everything is ready to call LuMutator:
 ```bash
-java -jar lumutator-pitest-1.0.jar -c config.xml
+java -jar pitest-example-1.0.jar -c config.xml
 ```
 
 #### Using another mutation tool

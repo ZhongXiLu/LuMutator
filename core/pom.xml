@@ -11,13 +11,13 @@
 
     <artifactId>core</artifactId>
 
-    <!-- Local Maven repository -->
-    <repositories>
+    <distributionManagement>
         <repository>
-            <id>repo</id>
-            <url>file://${project.basedir}/../repo</url>
+            <id>github</id>
+            <name>GitHub zhongxilu Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/zhongxilu/LuMutator</url>
         </repository>
-    </repositories>
+    </distributionManagement>
 
     <build>
         <plugins>

@@ -13,4 +13,12 @@
         <module>pitest-example</module>
     </modules>
 
+    <!-- Local Maven repository -->
+    <repositories>
+        <repository>
+            <id>repo</id>
+            <url>file://${project.basedir}/../repo</url>
+        </repository>
+    </repositories>
+
 </project>
