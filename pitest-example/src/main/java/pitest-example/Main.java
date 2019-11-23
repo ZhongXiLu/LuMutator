@@ -48,10 +48,11 @@ public class Main {
             Configuration config = Configuration.getInstance();
 
             // Parse mutations file from PITest
-            List<Mutant> survivedMutants = Parser.getSurvivedMutants(
+            List<Mutant> survivedMutants = pitest.Parser.getMutants(
                     cmd.hasOption("mutants") ?
                             cmd.getOptionValue("mutants") :
-                            Paths.get(config.get("projectDir"), "target", "pit-reports").toString()
+                            Paths.get(config.get("projectDir"), "target", "pit-reports").toString(),
+                    true
             );
 
             // Call LuMutator

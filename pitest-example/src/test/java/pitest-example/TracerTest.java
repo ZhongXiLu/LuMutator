@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
  * Tests for the {@link Tracer}.
  * Testing on a simple Bank application (see /src/test/resources/bank).
  */
-public class TracerTest extends TestEnvironment {
+public class TracerTest extends pitest.TestEnvironment {
 
     /**
      * Trace of the tests of the original bank application.
@@ -51,7 +51,7 @@ public class TracerTest extends TestEnvironment {
     public void testTraceAndCompareMutants() {
         try {
             ClassLoader classLoader = TracerTest.class.getClassLoader();
-            List<Mutant> survivedMutants = Parser.getSurvivedMutants(classLoader.getResource("bank/pit-reports").getPath());
+            List<Mutant> survivedMutants = pitest.Parser.getMutants(classLoader.getResource("bank/pit-reports").getPath(), true);
 
             List<ImmutablePair<JSONCompareResult, Mutant>> failedComparisons =
                     Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);

@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 /**
  * Tests for {@link AssertionGenerator}.
  */
-public class AssertionGeneratorTest extends TestEnvironment {
+public class AssertionGeneratorTest extends pitest.TestEnvironment {
 
     /**
      * The failed comparisons for the bank application.
@@ -40,7 +40,7 @@ public class AssertionGeneratorTest extends TestEnvironment {
         try {
             ClassLoader classLoader = AssertionGeneratorTest.class.getClassLoader();
             JSONObject originalTrace = Tracer.trace(classLoader.getResource("bank/src/test").getPath(), inspectorMethods);
-            List<Mutant> survivedMutants = Parser.getSurvivedMutants(classLoader.getResource("bank/pit-reports").getPath());
+            List<Mutant> survivedMutants = pitest.Parser.getMutants(classLoader.getResource("bank/pit-reports").getPath(), true);
 
             failedComparisons = Tracer.traceAndCompareMutants(survivedMutants, originalTrace, inspectorMethods);
             assertEquals(5, failedComparisons.size());  // just to make sure

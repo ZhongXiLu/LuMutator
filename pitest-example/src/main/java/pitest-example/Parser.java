@@ -31,9 +31,10 @@ public abstract class Parser {
      * Get all the survived mutants from the exported mutants of PITest.
      *
      * @param exportDirectory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports)
+     * @param survivedOnly    Only get the survived mutants?
      * @return List of all the survived mutants.
      */
-    static public List<Mutant> getSurvivedMutants(String exportDirectory) throws IOException {
+    static public List<Mutant> getMutants(String exportDirectory, boolean survivedOnly) throws IOException {
         // SMALL NOTE:
         // PITest generates two directories:
         //      - Directory with `mutations.xml` which contains the result of the mutation process,
@@ -53,18 +54,20 @@ public abstract class Parser {
 
         // Use list, so we can preserve order of insertion,
         // this way, the mutants are grouped together based on class
-        List<Mutant> survivedMutants = new ArrayList<>();
+        List<Mutant> mutants = new ArrayList<>();
 
         // Retrieve all the survived mutants from the results file
         Set<Mutant> survivedMutantsFromResults = null;
-        for (File dir : exportDir.listFiles()) {
-            if (dir.isDirectory() && !dir.getName().equals("export")) {
-                survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
+        if (survivedOnly) {
+            for (File dir : exportDir.listFiles()) {
+                if (dir.isDirectory() && !dir.getName().equals("export")) {
+                    survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
+                }
             }
         }
 
         // Retrieve the necessary information of a mutant (including the corresponding class file)
-        if (survivedMutantsFromResults != null) {
+        if (survivedMutantsFromResults != null || !survivedOnly) {
             List<File> mutantDirectories = Directory.getAllDirectories(Paths.get(exportDirectory, "export").toFile(), "mutants");
             for (File dir : mutantDirectories) {
                 for (File mutant : dir.listFiles()) {
@@ -94,8 +97,8 @@ public abstract class Parser {
                             mutator,
                             notes
                     );
-                    if (survivedMutantsFromResults.contains(m)) {
-                        survivedMutants.add(m);
+                    if (!survivedOnly || survivedMutantsFromResults.contains(m)) {
+                        mutants.add(m);
                     }
                 }
             }
@@ -103,7 +106,7 @@ public abstract class Parser {
             throw new IOException("Failed retrieving the survived mutants");
         }
 
-        return survivedMutants;
+        return mutants;
     }
 
     /**

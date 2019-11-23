@@ -15,7 +15,7 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 /**
- * Tests for {@link Parser}.
+ * Tests for {@link pitest.Parser}.
  */
 public class ParserTest {
 
@@ -56,14 +56,14 @@ public class ParserTest {
     }
 
     /**
-     * Test the getSurvivedMutantsFromFile method.
+     * Test the {@link pitest.Parser#getSurvivedMutantsFromFile(File)} method.
      */
     @Test
     public void testGetSurvivedMutantsFromFile() {
         ClassLoader classLoader = getClass().getClassLoader();
 
         try {
-            Method method = Parser.class.getDeclaredMethod("getSurvivedMutantsFromFile", File.class);
+            Method method = pitest.Parser.class.getDeclaredMethod("getSurvivedMutantsFromFile", File.class);
             method.setAccessible(true);
             Set<Mutant> survivedMutants = (Set<Mutant>) method.invoke(null, new File(classLoader.getResource("pit-reports/201908271440/mutations.xml").getFile()));
 
@@ -79,16 +79,16 @@ public class ParserTest {
     }
 
     /**
-     * Test the {@link Parser#getSurvivedMutants(String)} method.
+     * Test the {@link pitest.Parser#getMutants(String, boolean)} method for survived mutants.
      */
     @Test
     public void testGetSurvivedMutants() {
         ClassLoader classLoader = getClass().getClassLoader();
 
         try {
-            Method method = Parser.class.getDeclaredMethod("getSurvivedMutants", String.class);
+            Method method = pitest.Parser.class.getDeclaredMethod("getMutants", String.class, boolean.class);
             method.setAccessible(true);
-            List<Mutant> survivedMutants = (List<Mutant>) method.invoke(null, classLoader.getResource("pit-reports").getPath());
+            List<Mutant> survivedMutants = (List<Mutant>) method.invoke(null, classLoader.getResource("pit-reports").getPath(), true);
 
             assertEquals(2, survivedMutants.size());
 
@@ -101,6 +101,27 @@ public class ParserTest {
 
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             // Should not be possible
+            fail();
+        }
+    }
+
+    /**
+     * Test the {@link pitest.Parser#getMutants(String, boolean)} method for all the mutants.
+     */
+    @Test
+    public void testGetAllMutants() {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        try {
+            Method method = pitest.Parser.class.getDeclaredMethod("getMutants", String.class, boolean.class);
+            method.setAccessible(true);
+            List<Mutant> mutants = (List<Mutant>) method.invoke(null, classLoader.getResource("pit-reports").getPath(), false);
+
+            assertEquals(4, mutants.size());
+
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
+            System.out.println(e);
             fail();
         }
     }
