@@ -138,4 +138,44 @@ public class ParserTest {
         }
     }
 
+    // Set up dummy DerivedMutant class (used in testGetMutantsWithMutantType)
+    static class DerivedMutant extends Mutant {
+        public DerivedMutant(File originalFile, File classFile, String mutatedClass, int lineNr, String mutator, String notes) {
+            super(originalFile, classFile, mutatedClass, lineNr, mutator, notes);
+        }
+    }
+
+    /**
+     * Test the {@link pitest.Parser#getMutantsWithMutantType(String, boolean, Class)} method.
+     */
+    @Test
+    public void testGetMutantsWithMutantType() {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        try {
+            Method method = pitest.Parser.class.getDeclaredMethod("getMutantsWithMutantType", String.class, boolean.class, Class.class);
+            method.setAccessible(true);
+            List<Mutant> mutants = (List<Mutant>) method.invoke(null, classLoader.getResource("pit-reports").getPath(), false, DerivedMutant.class);
+
+            assertEquals(4, mutants.size());
+
+            int survivedCount = 0;
+            int killedCount = 0;
+            for (Mutant mutant: mutants) {
+                if (mutant.survived()) {
+                    survivedCount++;
+                } else {
+                    killedCount++;
+                }
+                assertTrue(mutant instanceof DerivedMutant);
+            }
+            assertEquals(2, survivedCount);
+            assertEquals(2, killedCount);
+
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Should not be possible
+            fail();
+        }
+    }
+
 }

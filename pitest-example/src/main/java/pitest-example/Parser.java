@@ -44,6 +44,7 @@ public abstract class Parser {
      *
      * @param exportDirectory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports)
      * @param survivedOnly    Only get the survived mutants?
+     * @param mutantClass     Create objects of this type (need to follow the interface of Mutant).
      * @return List of all the survived mutants.
      */
     static public List<Mutant> getMutantsWithMutantType(String exportDirectory, boolean survivedOnly, Class mutantClass) throws IOException {
@@ -72,7 +73,7 @@ public abstract class Parser {
         Set<Mutant> survivedMutantsFromResults = null;
         for (File dir : exportDir.listFiles()) {
             if (dir.isDirectory() && !dir.getName().equals("export")) {
-                survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
+                survivedMutantsFromResults = getSurvivedMutantsFromFileWithMutantType(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile(), mutantClass);
                 break;
             }
         }
@@ -144,6 +145,17 @@ public abstract class Parser {
      * @return Set of all the survived mutants.
      */
     static private Set<Mutant> getSurvivedMutantsFromFile(File resultsFile) throws IOException {
+        return getSurvivedMutantsFromFileWithMutantType(resultsFile, Mutant.class);
+    }
+
+    /**
+     * Get all the survived mutants from the results file (`mutations.xml`).
+     *
+     * @param resultsFile The results file from PITest.
+     * @param mutantClass Create objects of this type (need to follow the interface of Mutant).
+     * @return Set of all the survived mutants.
+     */
+    static private Set<Mutant> getSurvivedMutantsFromFileWithMutantType(File resultsFile, Class mutantClass) throws IOException {
         Set<Mutant> survivedMutants = new HashSet<>();
 
         Document doc = null;
@@ -156,6 +168,14 @@ public abstract class Parser {
 
         if (doc != null) {
             doc.getDocumentElement().normalize();
+
+            Constructor<?> constructor = null;
+            try {
+                constructor = mutantClass.getDeclaredConstructor(
+                        File.class, File.class, String.class, int.class, String.class, String.class);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(mutantClass.toString() + " is not a valid Mutant class");
+            }
 
             NodeList mutations = doc.getElementsByTagName("mutation");
             for (int i = 0; i < mutations.getLength(); i++) {
@@ -181,14 +201,19 @@ public abstract class Parser {
                     // NOTES
                     String notes = mutation.getElementsByTagName("description").item(0).getTextContent();
 
-                    survivedMutants.add(new Mutant(
-                            new File(originalFile),
-                            new File(""),   // not necessary now
-                            mutatedClass,
-                            lineNr,
-                            mutator,
-                            notes
-                    ));
+                    try {
+                        survivedMutants.add((Mutant) constructor.newInstance(new Object[]{
+                                new File(originalFile),
+                                new File(""),
+                                mutatedClass,
+                                lineNr,
+                                mutator,
+                                notes,
+
+                        }));
+                    } catch (Exception e) {
+                        // Should not be possible
+                    }
                 }
             }
         }
