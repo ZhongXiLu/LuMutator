@@ -70,16 +70,15 @@ public abstract class Parser {
 
         // Retrieve all the survived mutants from the results file
         Set<Mutant> survivedMutantsFromResults = null;
-        if (survivedOnly) {
-            for (File dir : exportDir.listFiles()) {
-                if (dir.isDirectory() && !dir.getName().equals("export")) {
-                    survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
-                }
+        for (File dir : exportDir.listFiles()) {
+            if (dir.isDirectory() && !dir.getName().equals("export")) {
+                survivedMutantsFromResults = getSurvivedMutantsFromFile(Paths.get(dir.getCanonicalPath(), "mutations.xml").toFile());
+                break;
             }
         }
 
         // Retrieve the necessary information of a mutant (including the corresponding class file)
-        if (survivedMutantsFromResults != null || !survivedOnly) {
+        if (survivedMutantsFromResults != null) {
             Constructor<?> constructor = null;
             try {
                 constructor = mutantClass.getDeclaredConstructor(
@@ -119,11 +118,11 @@ public abstract class Parser {
                                 notes,
 
                         });
-                        if (!survivedOnly) {
-                            m.setSurvived(false);
-                            mutants.add(m);
-                        } else if (survivedMutantsFromResults.contains(m)) {
+                        if (survivedMutantsFromResults.contains(m)) {
                             m.setSurvived(true);
+                            mutants.add(m);
+                        } else if (!survivedOnly) {
+                            m.setSurvived(false);
                             mutants.add(m);
                         }
                     } catch (Exception e) {

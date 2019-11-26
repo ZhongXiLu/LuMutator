@@ -119,6 +119,18 @@ public class ParserTest {
 
             assertEquals(4, mutants.size());
 
+            int survivedCount = 0;
+            int killedCount = 0;
+            for (Mutant mutant: mutants) {
+                if (mutant.survived()) {
+                    survivedCount++;
+                } else {
+                    killedCount++;
+                }
+            }
+            assertEquals(2, survivedCount);
+            assertEquals(2, killedCount);
+
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             // Should not be possible
             System.out.println(e);
