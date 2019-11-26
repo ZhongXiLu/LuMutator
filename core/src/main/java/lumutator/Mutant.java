@@ -44,6 +44,11 @@ public class Mutant {
     private String notes;
 
     /**
+     * Did the mutant survive?
+     */
+    private Boolean survived = true;
+
+    /**
      * Create a mutant.
      *
      * @param originalFile The original, unmodified file where the mutant was inserted.
@@ -114,6 +119,24 @@ public class Mutant {
      */
     public String getNotes() {
         return notes;
+    }
+
+    /**
+     * Set whether the mutant survived or not.
+     *
+     * @param survived True if survived, false otherwise.
+     */
+    public void setSurvived(Boolean survived) {
+        this.survived = survived;
+    }
+
+    /**
+     * Check if the mutant survived.
+     *
+     * @return True if survived, false otherwise.
+     */
+    public Boolean survived() {
+        return survived;
     }
 
     /**

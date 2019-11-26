@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,6 +36,17 @@ public abstract class Parser {
      * @return List of all the survived mutants.
      */
     static public List<Mutant> getMutants(String exportDirectory, boolean survivedOnly) throws IOException {
+        return getMutantsWithMutantType(exportDirectory, survivedOnly, Mutant.class);
+    }
+
+    /**
+     * Get all the survived mutants from the exported mutants of PITest.
+     *
+     * @param exportDirectory Directory that contains all the mutant files exported by PITest. (usually this is /target/pit-reports)
+     * @param survivedOnly    Only get the survived mutants?
+     * @return List of all the survived mutants.
+     */
+    static public List<Mutant> getMutantsWithMutantType(String exportDirectory, boolean survivedOnly, Class mutantClass) throws IOException {
         // SMALL NOTE:
         // PITest generates two directories:
         //      - Directory with `mutations.xml` which contains the result of the mutation process,
@@ -68,6 +80,14 @@ public abstract class Parser {
 
         // Retrieve the necessary information of a mutant (including the corresponding class file)
         if (survivedMutantsFromResults != null || !survivedOnly) {
+            Constructor<?> constructor = null;
+            try {
+                constructor = mutantClass.getDeclaredConstructor(
+                        File.class, File.class, String.class, int.class, String.class, String.class);
+            } catch (NoSuchMethodException e) {
+                throw new IllegalArgumentException(mutantClass.toString() + " is not a valid Mutant class");
+            }
+
             List<File> mutantDirectories = Directory.getAllDirectories(Paths.get(exportDirectory, "export").toFile(), "mutants");
             for (File dir : mutantDirectories) {
                 for (File mutant : dir.listFiles()) {
@@ -89,16 +109,25 @@ public abstract class Parser {
                     // Get the .class file in the same directory
                     File classFile = ((List<File>) FileUtils.listFiles(mutant, new String[]{"class"}, true)).get(0);
 
-                    Mutant m = new Mutant(
-                            new File(originalFile),
-                            classFile,
-                            mutatedClass,
-                            lineNr,
-                            mutator,
-                            notes
-                    );
-                    if (!survivedOnly || survivedMutantsFromResults.contains(m)) {
-                        mutants.add(m);
+                    try {
+                        Mutant m = (Mutant) constructor.newInstance(new Object[]{
+                                new File(originalFile),
+                                classFile,
+                                mutatedClass,
+                                lineNr,
+                                mutator,
+                                notes,
+
+                        });
+                        if (!survivedOnly) {
+                            m.setSurvived(false);
+                            mutants.add(m);
+                        } else if (survivedMutantsFromResults.contains(m)) {
+                            m.setSurvived(true);
+                            mutants.add(m);
+                        }
+                    } catch (Exception e) {
+                        // Should not be possible
                     }
                 }
             }

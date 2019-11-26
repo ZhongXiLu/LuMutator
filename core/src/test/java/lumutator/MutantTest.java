@@ -56,6 +56,7 @@ public class MutantTest {
         assertEquals(123, m.getLineNr());
         assertEquals("MathMutator", m.getMutator());
         assertEquals("Some notes.", m.getNotes());
+        assertTrue(m.survived());
 
         assertEquals("", m2.getOriginalFile().getName());
         assertEquals("", m2.getClassFile().getName());
@@ -63,6 +64,7 @@ public class MutantTest {
         assertEquals(-1, m2.getLineNr());
         assertEquals("", m2.getMutator());
         assertEquals(".", m2.getNotes());
+        assertTrue(m2.survived());
     }
 
     /**
