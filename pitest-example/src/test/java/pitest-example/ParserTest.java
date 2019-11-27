@@ -41,6 +41,7 @@ public class ParserTest {
                 new File("./src/main/java/some/package/Class.java"),
                 new File(""),
                 "some.package.Class",
+                "someMethod",
                 123,
                 "VoidMethodCallMutator",
                 "removed call to some/package/Class::someMethod"
@@ -49,6 +50,7 @@ public class ParserTest {
                 new File("./src/main/java/some/package/OtherClass.java"),
                 new File(""),
                 "some.package.OtherClass",
+                "someMethod",
                 666,
                 "ReturnValsMutator",
                 "replaced return of integer sized value with (x == 0 ? 1 : 0)"
@@ -140,8 +142,8 @@ public class ParserTest {
 
     // Set up dummy DerivedMutant class (used in testGetMutantsWithMutantType)
     static class DerivedMutant extends Mutant {
-        public DerivedMutant(File originalFile, File classFile, String mutatedClass, int lineNr, String mutator, String notes) {
-            super(originalFile, classFile, mutatedClass, lineNr, mutator, notes);
+        public DerivedMutant(File originalFile, File classFile, String mutatedClass, String mutatedmethod, int lineNr, String mutator, String notes) {
+            super(originalFile, classFile, mutatedClass, mutatedmethod, lineNr, mutator, notes);
         }
     }
 

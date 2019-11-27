@@ -83,7 +83,7 @@ public abstract class Parser {
             Constructor<?> constructor = null;
             try {
                 constructor = mutantClass.getDeclaredConstructor(
-                        File.class, File.class, String.class, int.class, String.class, String.class);
+                        File.class, File.class, String.class, String.class, int.class, String.class, String.class);
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException(mutantClass.toString() + " is not a valid Mutant class");
             }
@@ -96,6 +96,7 @@ public abstract class Parser {
 
                     // Get details from "details.txt"
                     String mutatedClass = getAttribute(mutantDetails, "clazz");
+                    String mutatedMethod = getAttribute(mutantDetails, "method");
                     String originalFile = Configuration.getInstance().get("projectDir") + "/" + getOriginalFilePath(mutatedClass);
                     int lineNr = Integer.parseInt(getAttribute(mutantDetails, "lineNumber"));
                     String mutator = getAttribute(mutantDetails, "mutator");
@@ -114,6 +115,7 @@ public abstract class Parser {
                                 new File(originalFile),
                                 classFile,
                                 mutatedClass,
+                                mutatedMethod,
                                 lineNr,
                                 mutator,
                                 notes,
@@ -172,7 +174,7 @@ public abstract class Parser {
             Constructor<?> constructor = null;
             try {
                 constructor = mutantClass.getDeclaredConstructor(
-                        File.class, File.class, String.class, int.class, String.class, String.class);
+                        File.class, File.class, String.class, String.class, int.class, String.class, String.class);
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException(mutantClass.toString() + " is not a valid Mutant class");
             }
@@ -206,6 +208,7 @@ public abstract class Parser {
                                 new File(originalFile),
                                 new File(""),
                                 mutatedClass,
+                                "",
                                 lineNr,
                                 mutator,
                                 notes,

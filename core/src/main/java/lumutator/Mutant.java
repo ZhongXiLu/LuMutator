@@ -29,6 +29,11 @@ public class Mutant {
     private String mutatedClass;
 
     /**
+     * The mutated method name.
+     */
+    private String mutatedMethod;
+
+    /**
      * The line number where the mutant resides.
      */
     private int lineNr;
@@ -51,17 +56,19 @@ public class Mutant {
     /**
      * Create a mutant.
      *
-     * @param originalFile The original, unmodified file where the mutant was inserted.
-     * @param classFile    The compiled class file that contains the mutant.
-     * @param mutatedClass The mutated class, including its package.
-     * @param lineNr       The line number where the mutant resides.
-     * @param mutator      The type of mutator.
-     * @param notes        Extra information about the mutant. (can be anything, it's just to help the user in the end)
+     * @param originalFile  The original, unmodified file where the mutant was inserted.
+     * @param classFile     The compiled class file that contains the mutant.
+     * @param mutatedClass  The mutated class, including its package.
+     * @param mutatedMethod The mutated method.
+     * @param lineNr        The line number where the mutant resides.
+     * @param mutator       The type of mutator.
+     * @param notes         Extra information about the mutant. (can be anything, it's just to help the user in the end)
      */
-    public Mutant(File originalFile, File classFile, String mutatedClass, int lineNr, String mutator, String notes) {
+    public Mutant(File originalFile, File classFile, String mutatedClass, String mutatedMethod, int lineNr, String mutator, String notes) {
         this.originalFile = originalFile;
         this.classFile = classFile;
         this.mutatedClass = mutatedClass;
+        this.mutatedMethod = mutatedMethod;
         this.lineNr = lineNr;
         this.mutator = mutator;
         this.notes = notes;
@@ -92,6 +99,15 @@ public class Mutant {
      */
     public String getMutatedClass() {
         return mutatedClass;
+    }
+
+    /**
+     * Get the mutated method.
+     *
+     * @return The mutated method.
+     */
+    public String getMutatedMethod() {
+        return mutatedMethod;
     }
 
     /**
