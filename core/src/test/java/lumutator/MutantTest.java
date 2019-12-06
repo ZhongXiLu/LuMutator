@@ -32,6 +32,7 @@ public class MutantTest {
                 new File("originalFile.class"),
                 "some.package.Class",
                 "someMethod",
+                "(I)V",
                 123,
                 "MathMutator",
                 "Some notes."
@@ -39,6 +40,7 @@ public class MutantTest {
         m2 = new Mutant(
                 new File(""),
                 new File(""),
+                "",
                 "",
                 "",
                 -1,
@@ -56,6 +58,7 @@ public class MutantTest {
         assertEquals("originalFile.class", m.getClassFile().getName());
         assertEquals("some.package.Class", m.getMutatedClass());
         assertEquals("someMethod", m.getMutatedMethod());
+        assertEquals("(I)V", m.getMutatedMethodDescr());
         assertEquals(123, m.getLineNr());
         assertEquals("MathMutator", m.getMutator());
         assertEquals("Some notes.", m.getNotes());
@@ -65,6 +68,7 @@ public class MutantTest {
         assertEquals("", m2.getClassFile().getName());
         assertEquals("", m2.getMutatedClass());
         assertEquals("", m2.getMutatedMethod());
+        assertEquals("", m2.getMutatedMethodDescr());
         assertEquals(-1, m2.getLineNr());
         assertEquals("", m2.getMutator());
         assertEquals(".", m2.getNotes());
@@ -84,6 +88,7 @@ public class MutantTest {
                 new File("originalFile.class"),
                 "some.package.Class",
                 "someMethod",
+                "(I)V",
                 123,
                 "MathMutator",
                 "Some notes."

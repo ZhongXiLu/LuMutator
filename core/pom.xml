@@ -7,7 +7,7 @@
 
     <groupId>com.github.lumutator</groupId>
     <artifactId>core</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
 
     <distributionManagement>
         <repository>
@@ -62,7 +62,6 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>pitest.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -7,7 +7,7 @@
 
     <groupId>com.github.lumutator</groupId>
     <artifactId>pitest-example</artifactId>
-    <version>1.1</version>
+    <version>1.1.1</version>
 
     <distributionManagement>
         <repository>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.github.lumutator</groupId>
             <artifactId>core</artifactId>
-            <version>1.2</version>
+            <version>1.2.1</version>
         </dependency>
 
         <!-- Command line argument parser -->

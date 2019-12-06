@@ -34,6 +34,11 @@ public class Mutant {
     private String mutatedMethod;
 
     /**
+     * The mutated method description.
+     */
+    private String mutatedMethodDescr;
+
+    /**
      * The line number where the mutant resides.
      */
     private int lineNr;
@@ -56,19 +61,22 @@ public class Mutant {
     /**
      * Create a mutant.
      *
-     * @param originalFile  The original, unmodified file where the mutant was inserted.
-     * @param classFile     The compiled class file that contains the mutant.
-     * @param mutatedClass  The mutated class, including its package.
-     * @param mutatedMethod The mutated method.
-     * @param lineNr        The line number where the mutant resides.
-     * @param mutator       The type of mutator.
-     * @param notes         Extra information about the mutant. (can be anything, it's just to help the user in the end)
+     * @param originalFile       The original, unmodified file where the mutant was inserted.
+     * @param classFile          The compiled class file that contains the mutant.
+     * @param mutatedClass       The mutated class, including its package.
+     * @param mutatedMethod      The mutated method.
+     * @param mutatedMethodDescr The mutated method description (e.g. (I)V).
+     * @param lineNr             The line number where the mutant resides.
+     * @param mutator            The type of mutator.
+     * @param notes              Extra information about the mutant. (can be anything, it's just to help the user in the end)
      */
-    public Mutant(File originalFile, File classFile, String mutatedClass, String mutatedMethod, int lineNr, String mutator, String notes) {
+    public Mutant(File originalFile, File classFile, String mutatedClass, String mutatedMethod,
+                  String mutatedMethodDescr, int lineNr, String mutator, String notes) {
         this.originalFile = originalFile;
         this.classFile = classFile;
         this.mutatedClass = mutatedClass;
         this.mutatedMethod = mutatedMethod;
+        this.mutatedMethodDescr = mutatedMethodDescr;
         this.lineNr = lineNr;
         this.mutator = mutator;
         this.notes = notes;
@@ -108,6 +116,15 @@ public class Mutant {
      */
     public String getMutatedMethod() {
         return mutatedMethod;
+    }
+
+    /**
+     * Get the mutated method description.
+     *
+     * @return The mutated method description.
+     */
+    public String getMutatedMethodDescr() {
+        return mutatedMethodDescr;
     }
 
     /**

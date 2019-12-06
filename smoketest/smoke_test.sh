@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assume LuMutator is already packaged in jar file
-cp pitest-example/target/pitest-example-1.1.jar smoketest/lumutator-pitest-1.0-SNAPSHOT.jar
+cp pitest-example/target/pitest-example-1.1.1.jar smoketest/lumutator-pitest-1.0-SNAPSHOT.jar
 cd smoketest
 
 # Download the project if necessary
